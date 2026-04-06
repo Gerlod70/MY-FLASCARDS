@@ -73,6 +73,10 @@
         
         .hidden-text { background: var(--light-gray); color: var(--deep-blue); padding: 8px 12px; border-radius: 6px; cursor: pointer; display: block; width: 95%; border: 1px solid #dcdde1; box-sizing: border-box; filter: blur(4px); white-space: pre-wrap; word-break: break-word; transition: filter 0.2s; }
         #tableC .hidden-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Nuova regola per iPhone: visualizzazione forzata senza hover */
+        .hidden-text.force-visible { filter: blur(0) !important; background: var(--deep-blue) !important; color: white !important; font-weight: bold !important; }
+
         tr:hover .hidden-text { filter: blur(0); background: var(--deep-blue); color: white !important; font-weight: bold; }
         
         .backup-footer { width: 100%; max-width: 1200px; display: flex; justify-content: center; gap: 20px; margin-top: 20px; padding: 20px; border-top: 2px dashed #ccc; box-sizing: border-box; }
@@ -88,7 +92,6 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* MODIFICA: Vista Orizzontale iPhone per colonne affiancate */
         @media only screen and (max-width: 950px) and (orientation: landscape) {
             table { min-width: 100%; }
             .col-main { width: 30% !important; font-size: 12px; }
@@ -228,14 +231,36 @@
     </div>
 
 <script>
-    // COSTANTE PER RILEVARE IPHONE
     const isIPhone = /iPhone|iPod|iPad/i.test(navigator.userAgent);
+    let lastTapTime = 0; // Per gestire il doppio tocco su iPhone
 
     let dbs = {
         A: { key: 'flash_v_pc_pro_DATABASE_A', data: [], deck: [], current: null },
         B: { key: 'flash_v_pc_pro_DATABASE_B', data: [], deck: [], current: null },
         C: { key: 'VERBI_PRO_STABLE_V15', data: [], deck: [], current: null }
     };
+
+    // FUNZIONE DI GESTIONE TOCCO TRADUZIONE (LOGICA RICHIESTA)
+    function handleTranslationTap(el, t, idx) {
+        if (!isIPhone) {
+            // Su PC il comportamento resta invariato (tocco singolo = posticipa)
+            togglePause(t, idx);
+            return;
+        }
+
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTapTime;
+
+        if (tapLength < 300 && tapLength > 0) {
+            // DOPPIO TOCCO SU IPHONE: Posticipa/Riattiva
+            togglePause(t, idx);
+            lastTapTime = 0; // Reset
+        } else {
+            // TOCCO SINGOLO SU IPHONE: Svela solo la traduzione
+            el.classList.toggle('force-visible');
+        }
+        lastTapTime = currentTime;
+    }
 
     function formatText(text) {
         if(!text) return "";
@@ -321,20 +346,14 @@
         dbs[t].current._target = showEn ? dbs[t].current.it : dbs[t].current.en;
         if(!keepCurrent) { document.getElementById('ans' + t).value = ""; document.getElementById('fb' + t).innerText = ""; btn.innerText = "CONTROLLA"; }
         document.getElementById('info' + t).innerText = `RESTANTI: ${dbs[t].deck.length + (dbs[t].current ? 1 : 0)}`;
-        
-        // MODIFICA: Focus solo se non è iPhone
-        if (!isIPhone) {
-            document.getElementById('ans' + t).focus();
-        }
+        if (!isIPhone) { document.getElementById('ans' + t).focus(); }
     }
 
     function checkGeneric(t) {
         const btn = document.getElementById('check' + t);
         if(btn.innerText === "PROSSIMO") { nextCard(t); return; }
-        
         const feedbackText = formatText(dbs[t].current._target).replace(/, /g, ',\n');
         document.getElementById('fb' + t).innerText = feedbackText;
-        
         btn.innerText = "PROSSIMO";
     }
 
@@ -360,24 +379,17 @@
         document.getElementById('speakBtnC').setAttribute('onclick', `speakItem('${dbs.C.current.full.replace(/'/g, "\\'")}')`);
         if(!keepCurrent) { document.getElementById('ansC').value = ""; document.getElementById('fbC').innerText = ""; btn.innerText = "CONTROLLA"; }
         document.getElementById('infoC').innerText = `RESTANTI: ${dbs.C.deck.length + (dbs.C.current ? 1 : 0)}`;
-        
-        // MODIFICA: Focus solo se non è iPhone
-        if (!isIPhone) {
-            document.getElementById('ansC').focus();
-        }
+        if (!isIPhone) { document.getElementById('ansC').focus(); }
     }
 
     function checkVerb() {
         const btn = document.getElementById('checkC');
         if(btn.innerText === "PROSSIMO") { nextVerb(); return; }
         const paradigm = formatText(dbs.C.current.full);
-        
         const translation = formatText(dbs.C.current.it).replace(/, /g, ',\n');
-        
         const base = formatText(dbs.C.current.base);
         const selectedMode = document.getElementById('gameModeC').value;
         const showingIta = (selectedMode === 'it') || (selectedMode === 'alt' && dbs.C.current.lastAltState === 'it');
-
         if(showingIta) { document.getElementById('fbC').innerText = base + " - " + paradigm; } 
         else { document.getElementById('fbC').innerText = paradigm + "\n(" + translation + ")"; }
         btn.innerText = "PROSSIMO";
@@ -419,9 +431,10 @@
                 const row = table.insertRow();
                 let mainContent = isP ? curMain + " (P)" : `<span class="list-active-highlight">${curMain}</span>`;
 
+                // MODIFICA: Utilizzo di handleTranslationTap invece di togglePause diretto
                 row.innerHTML = `<td class="col-idx">${idx+1}</td>
                 <td class="col-main">${mainContent}</td>
-                <td class="col-trans"><span class="hidden-text" onclick="togglePause('${t}',${idx})">${curTrans}</span></td>
+                <td class="col-trans"><span class="hidden-text" onclick="handleTranslationTap(this, '${t}',${idx})">${curTrans}</span></td>
                 <td><select onchange="updateMode('${t}',${idx},this.value)"><option value="en" ${mType==='en'?'selected':''}>En</option><option value="it" ${mType==='it'?'selected':''}>Ita</option><option value="alt" ${mType==='alt'?'selected':''}>Alt</option></select></td>
                 <td><button class="list-btn btn-edit-list" style="background:none; font-size:18px;" onclick="speakItem('${speakText.replace(/'/g,"\\")}')">🔊</button></td>
                 <td><button class="list-btn btn-edit-list" onclick="manualEdit('${t}',${idx})">✏️</button></td>
@@ -477,7 +490,6 @@
     function manualEdit(t, i) { 
         let item; const isFromCard = (i === undefined);
         if (isFromCard) { item = dbs[t].current; if (!item) return showToast("Nessuna parola attiva!"); } else { item = dbs[t].data[i]; }
-
         if (t === 'C') {
             const v1 = prompt("Base (Infinito):", item.base);
             const v2 = prompt("Paradigma (Past/Participle):", item.full);
@@ -510,17 +522,14 @@
             if(!base) return;
             dbs.C.data.push({ base, full, it, nextReview: 0, mode: 'en' });
             save('C'); buildDeck('C'); renderTable('C');
-            document.getElementById('newBaseC').value = "";
-            document.getElementById('newFullC').value = "";
-            document.getElementById('newItC').value = "";
+            document.getElementById('newBaseC').value = ""; document.getElementById('newFullC').value = ""; document.getElementById('newItC').value = "";
         } else {
             const en = document.getElementById('newEn' + t).value.trim();
             const it = document.getElementById('newIt' + t).value.trim();
             if(!en) return;
             dbs[t].data.push({ en, it, nextReview: 0, mode: 'en' });
             save(t); buildDeck(t); renderTable(t);
-            document.getElementById('newEn' + t).value = "";
-            document.getElementById('newIt' + t).value = "";
+            document.getElementById('newEn' + t).value = ""; document.getElementById('newIt' + t).value = "";
         }
         showToast("Aggiunto!");
     }
