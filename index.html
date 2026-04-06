@@ -2,89 +2,92 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flashcards Pro - V51.9.3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards Pro - V51.9.1</title>
     <style>
         :root { --blue: #007bff; --purple: #6f42c1; --dark-blue: #2c3e50; --bg: #f4f7f9; --text-dark: #2d3436; --deep-blue: #0984e3; --light-gray: #f1f2f6; --red: #e74c3c; --green: #27ae60; --orange: #f39c12; --teal: #00cec9; --grey: #636e72; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; color: var(--text-dark); }
         
-        /* Reset per Mobile */
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; color: var(--text-dark); width: 100vw; overflow-x: hidden; }
-        
-        button, .nav-btn, .list-btn { transition: transform 0.1s ease, opacity 0.1s ease; cursor: pointer; border: none; }
-        button:active { transform: scale(0.95); opacity: 0.8; }
+        button, .nav-btn, .list-btn { transition: transform 0.1s ease, opacity 0.1s ease; outline: none; cursor: pointer; border: none; }
+        button:active, .nav-btn:active, .list-btn:active { transform: scale(0.92); opacity: 0.7; }
 
-        /* Navigazione Adattiva */
-        .main-nav { background: #2c3e50; width: 100%; display: flex; justify-content: center; padding: 10px; gap: 8px; position: sticky; top: 0; z-index: 1000; flex-wrap: wrap; }
-        .nav-btn { padding: 8px 12px; border-radius: 6px; font-weight: bold; color: white; background: #455a64; font-size: 12px; flex: 1; min-width: 100px; max-width: 150px; }
+        .main-nav { background: #2c3e50; width: 100%; display: flex; justify-content: center; padding: 12px 0; gap: 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .nav-btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; color: white; background: #455a64; font-size: 14px; }
         .nav-btn.active-a { background: var(--blue); }
         .nav-btn.active-b { background: var(--purple); }
         .nav-btn.active-c { background: var(--dark-blue); border: 1px solid white; }
 
-        /* Card Principale */
-        .card { background: white; width: 95%; max-width: 800px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin: 15px 0; border-top: 8px solid #ddd; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px; }
+        .card-mode-selector { padding: 5px 10px; border-radius: 8px; border: 1px solid #ddd; background: #f8f9fa; font-size: 13px; font-weight: bold; color: var(--text-dark); outline: none; }
+
+        .card { background: white; width: 1000px; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 25px; border-top: 8px solid #ddd; box-sizing: border-box; }
         #sectionA .card { border-color: var(--blue); }
         #sectionB .card { border-color: var(--purple); }
         #sectionC .card { border-color: var(--dark-blue); }
 
-        .word-display { font-size: 28px; font-weight: 800; margin: 20px 0; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 50px; word-break: break-word; }
-        .game-input { width: 100%; max-width: 500px; padding: 15px; border: 2px solid #b2bec3; border-radius: 10px; font-size: 20px; text-align: center; margin-bottom: 10px; }
+        .word-display { font-size: 34px; font-weight: 800; margin: 25px 0; display: flex; align-items: center; justify-content: center; gap: 15px; min-height: 60px; color: #1a1a1a; }
+        .game-input { width: 85%; padding: 18px; border: 2px solid #b2bec3; border-radius: 10px; font-size: 22px; text-align: center; outline: none; margin: 0 auto 10px auto; display: block; box-sizing: border-box; }
         
-        .feedback-area { width: 100%; max-width: 500px; margin: 0 auto 15px; font-weight: 800; font-size: 22px; color: var(--deep-blue); min-height: 40px; text-align: left; white-space: pre-line; }
+        .feedback-area { margin: 0 auto 20px auto; width: 85%; font-weight: 900; font-size: 26px; min-height: 45px; color: var(--deep-blue); line-height: 1.4; white-space: pre-line; text-align: left; }
         
-        .btn-check { width: 100%; max-width: 500px; padding: 15px; border-radius: 10px; font-weight: bold; color: white; background: #2d3436; font-size: 16px; margin-bottom: 15px; }
+        .btn-check { width: 85%; padding: 18px; border-radius: 10px; font-weight: bold; color: white; background: #2d3436; font-size: 18px; text-transform: uppercase; margin: 0 auto 15px auto; display: block; }
+        .btn-restart { background: #27ae60; color: white; padding: 15px 30px; border-radius: 10px; font-size: 20px; font-weight: bold; margin-top: 20px; display: none; }
 
-        .game-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 500px; margin: 0 auto; }
-        .btn-act { padding: 12px 5px; border-radius: 8px; color: white; font-weight: bold; font-size: 10px; text-transform: uppercase; }
-        .btn-edit { background: var(--grey); }
+        .game-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 85%; margin: 0 auto; }
+        .btn-act { padding: 14px; border-radius: 8px; color: white; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+        .btn-edit { background: #636e72; }
         .btn-postpone { background: var(--orange); }
         .btn-delete { background: var(--red); }
 
-        /* Sezioni Database */
-        .db-section { display: none; width: 100%; flex-direction: column; align-items: center; }
+        .db-section { display: none; width: 100%; flex-direction: column; align-items: center; padding: 20px 0; }
         .db-section.active { display: flex; }
 
-        /* Input Aggiunta */
-        .add-container { width: 95%; max-width: 800px; background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #eee; }
-        .add-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-        .btn-add { background: var(--green); color: white; padding: 12px; border-radius: 6px; font-weight: bold; width: 100%; }
+        .add-container { width: 1200px; background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee; box-sizing: border-box;}
+        .add-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .btn-add { background: var(--green); color: white; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 14px; }
 
-        /* Ricerca e Tool */
-        .search-container { width: 95%; max-width: 800px; margin-bottom: 15px; display: flex; gap: 5px; flex-wrap: wrap; }
-        .search-input { flex: 1; min-width: 200px; padding: 12px; border-radius: 10px; border: 1px solid #dfe6e9; }
-        .btn-tool { padding: 10px; border-radius: 8px; color: white; font-size: 10px; flex: 1; }
+        .search-container { width: 1200px; margin-bottom: 15px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .search-input { width: 250px; padding: 12px 15px; border-radius: 10px; border: 1px solid #dfe6e9; font-size: 16px; outline: none; }
+        .btn-tool { padding: 10px 15px; border-radius: 8px; color: white; font-weight: bold; font-size: 12px; text-transform: uppercase; }
         
-        /* Tabella Listati */
-        .admin-panel { background: white; width: 95%; max-width: 800px; border-radius: 15px; margin-bottom: 30px; overflow: hidden; border: 1px solid #dfe6e9; }
-        .list-header { padding: 15px; background: #f8f9fa; font-weight: bold; font-size: 14px; border-bottom: 1px solid #eee; }
+        .admin-panel { background: white; width: 1200px; border-radius: 15px; border: 1px solid #dfe6e9; margin-bottom: 30px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .list-header { padding: 18px 25px; background: #f8f9fa; border-bottom: 2px solid #eee; font-weight: bold; }
+        .scroll-area { max-height: 1000px; overflow-y: auto; overflow-x: hidden; position: relative; }
         
-        /* SCORRIMENTO SOLO PER TABELLA */
-        .scroll-area { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; min-width: 800px; border-collapse: collapse; table-layout: fixed; }
-        th { background: #2d3436; color: white; padding: 12px 5px; font-size: 10px; text-transform: uppercase; position: sticky; top: 0; }
-        td { padding: 10px 5px; border-bottom: 1px solid #eee; font-size: 13px; text-align: center; overflow: hidden; text-overflow: ellipsis; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th { background: #2d3436; padding: 15px 5px; font-size: 11px; color: white; text-transform: uppercase; text-align: center; position: sticky; top: 0; z-index: 10; }
+        td { padding: 12px 4px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; vertical-align: middle; }
         
-        .col-idx { width: 35px; }
-        .col-main { width: 180px; text-align: left !important; font-weight: bold; }
-        .col-trans { width: 250px; text-align: left !important; }
+        .col-idx { width: 40px; }
+        .col-main { width: 230px; text-align: left !important; padding-left: 20px !important; font-weight: 700; word-break: break-word; }
+        .col-trans { width: 400px; text-align: left !important; }
 
-        .hidden-text { background: #eee; color: transparent; padding: 5px; border-radius: 4px; filter: blur(4px); cursor: pointer; display: block; }
-        .hidden-text:active, .hidden-text:hover { filter: blur(0); color: var(--deep-blue); background: #e3f2fd; }
+        .list-active-highlight { background-color: #e3f2fd; padding: 4px 8px; border-radius: 6px; display: inline-block; }
 
-        /* Footer */
-        .backup-footer { width: 95%; max-width: 800px; padding: 20px; border-top: 2px dashed #ccc; display: flex; flex-direction: column; gap: 10px; }
-        .btn-backup { padding: 15px; border-radius: 10px; color: white; font-weight: bold; width: 100%; }
+        .list-btn { padding: 8px 12px; border-radius: 6px; font-weight: bold; color: white; min-width: 40px; }
+        .btn-edit-list { background: var(--grey); }
+        .btn-postpone-list { background: var(--orange); }
+        .btn-reactivate-list { background: var(--green); }
+        .btn-trash-list { background: var(--red); box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3); }
+        
+        .hidden-text { background: var(--light-gray); color: var(--deep-blue); padding: 8px 12px; border-radius: 6px; cursor: pointer; display: block; width: 95%; border: 1px solid #dcdde1; box-sizing: border-box; filter: blur(4px); white-space: pre-wrap; word-break: break-word; transition: filter 0.2s; }
+        
+        #tableC .hidden-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        #toast { visibility: hidden; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 25px; border-radius: 20px; z-index: 3000; font-size: 14px; }
-        #toast.show { visibility: visible; animation: fadein 0.5s; }
+        tr:hover .hidden-text { filter: blur(0); background: var(--deep-blue); color: white !important; font-weight: bold; }
+        
+        .backup-footer { width: 1200px; display: flex; justify-content: center; gap: 20px; margin-top: 20px; padding: 20px; border-top: 2px dashed #ccc; }
+        .btn-backup { padding: 15px 25px; border-radius: 10px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
+        .btn-export { background: #2d3436; }
+        .btn-import { background: #636e72; }
 
-        @media (min-width: 600px) {
-            .add-container { flex-direction: row; }
-            .backup-footer { flex-direction: row; }
-            .btn-act { font-size: 12px; }
-        }
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 2000; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold; pointer-events: none; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        
+        select { padding: 6px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
 
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 20px; opacity: 1;} }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
@@ -92,98 +95,116 @@
     <div id="toast">Operazione completata!</div>
 
     <nav class="main-nav">
-        <button id="navA" class="nav-btn active-a" onclick="switchTab('A')">DB 1</button>
-        <button id="navB" class="nav-btn" onclick="switchTab('B')">Grammar</button>
-        <button id="navC" class="nav-btn" onclick="switchTab('C')">Verbi Irreg.</button>
+        <button id="navA" class="nav-btn active-a" onclick="switchTab('A')">Database 1</button>
+        <button id="navB" class="nav-btn" onclick="switchTab('B')">Lesson and Grammar</button>
+        <button id="navC" class="nav-btn" onclick="switchTab('C')">Verbi Irregolari</button>
     </nav>
 
     <section id="sectionA" class="db-section active">
         <div class="card">
             <div class="card-header">
-                <div id="infoA" style="font-size:12px; font-weight:bold; color:var(--blue);"></div>
+                <div id="infoA" style="font-size:14px; font-weight:bold; color:var(--blue);"></div>
                 <select id="gameModeA" class="card-mode-selector" onchange="syncFromGame('A')">
                     <option value="en">Solo Eng</option>
                     <option value="it">Solo Ita</option>
                     <option value="alt">Modalità Alt</option>
                 </select>
             </div>
-            <div class="word-display"><span id="displayA">...</span><button onclick="speakItem(dbs.A.current.en)" style="background:none; font-size:24px;">🔊</button></div>
+            <div class="word-display"><span id="displayA">...</span><button onclick="speakItem(dbs.A.current.en)" style="background:none; font-size:30px;">🔊</button></div>
             <div id="gameA">
                 <input type="text" id="ansA" class="game-input" placeholder="Traduci..." autocomplete="off">
                 <div id="fbA" class="feedback-area"></div>
                 <button id="checkA" class="btn-check" onclick="checkGeneric('A')">CONTROLLA</button>
                 <div class="game-controls">
-                    <button class="btn-act btn-edit" onclick="manualEdit('A')">Edit</button>
-                    <button class="btn-act btn-postpone" onclick="togglePause('A')">Pausa</button>
+                    <button class="btn-act btn-edit" onclick="manualEdit('A')">Modifica</button>
+                    <button class="btn-act btn-postpone" onclick="togglePause('A')">Posticipa</button>
                     <button class="btn-act btn-delete" onclick="manualDelete('A')">Elimina</button>
                 </div>
             </div>
-            <button id="restartA" style="display:none; background:var(--green); color:white; padding:15px; border-radius:10px; width:100%; margin-top:10px;" onclick="restartSession('A')">RICOMINCIA 🔄</button>
+            <button id="restartA" class="btn-restart" onclick="restartSession('A')">RICOMINCIA SESSIONE 🔄</button>
         </div>
-        <div class="add-container"><input type="text" id="newEnA" class="add-input" placeholder="Inglese"><input type="text" id="newItA" class="add-input" placeholder="Italiano"><button class="btn-add" onclick="addNewItem('A')">AGGIUNGI</button></div>
+        <div class="add-container"><input type="text" id="newEnA" class="add-input" placeholder="Parola Inglese" onkeydown="if(event.key==='Enter') addNewItem('A')"><input type="text" id="newItA" class="add-input" placeholder="Traduzione Italiana" onkeydown="if(event.key==='Enter') addNewItem('A')"><button class="btn-add" onclick="addNewItem('A')">AGGIUNGI +</button></div>
         <div class="search-container">
             <input type="text" id="searchA" class="search-input" placeholder="Cerca..." oninput="renderTable('A')">
-            <button class="btn-tool" style="background:var(--grey)" onclick="renderTable('A')">🔄</button>
-            <button class="btn-tool" style="background:var(--blue)" onclick="forceAltRotation('A')">ALT 🔄</button>
+            <button class="btn-tool" style="background:var(--grey)" onclick="refreshList('A')">🔄 AGGIORNA</button>
+            <button class="btn-tool" style="background:var(--orange)" onclick="postponeAll('A')">⏳ POSTICIPA TUTTO</button>
+            <button class="btn-tool" style="background:var(--teal)" onclick="reactivateAll('A')">⚡ RIATTIVA TUTTO</button>
+            <button class="btn-tool" style="background:var(--blue)" onclick="forceAltRotation('A')">RUOTA ALT 🔄</button>
         </div>
-        <div class="admin-panel"><div class="list-header">Lista Database 1 (Scorri ➔)</div><div class="scroll-area"><table id="tableA"></table></div></div>
+        <div class="admin-panel"><div class="list-header">Lista Database 1</div><div class="scroll-area"><table id="tableA"></table></div></div>
     </section>
 
     <section id="sectionB" class="db-section">
         <div class="card">
             <div class="card-header">
-                <div id="infoB" style="font-size:12px; font-weight:bold; color:var(--purple);"></div>
+                <div id="infoB" style="font-size:14px; font-weight:bold; color:var(--purple);"></div>
                 <select id="gameModeB" class="card-mode-selector" onchange="syncFromGame('B')">
-                    <option value="en">Solo Eng</option><option value="it">Solo Ita</option><option value="alt">Modalità Alt</option>
+                    <option value="en">Solo Eng</option>
+                    <option value="it">Solo Ita</option>
+                    <option value="alt">Modalità Alt</option>
                 </select>
             </div>
-            <div class="word-display"><span id="displayB">...</span><button onclick="speakItem(dbs.B.current.en)" style="background:none; font-size:24px;">🔊</button></div>
+            <div class="word-display"><span id="displayB">...</span><button onclick="speakItem(dbs.B.current.en)" style="background:none; font-size:30px;">🔊</button></div>
             <div id="gameB">
                 <input type="text" id="ansB" class="game-input" placeholder="Traduci..." autocomplete="off">
                 <div id="fbB" class="feedback-area"></div>
-                <button id="checkB" class="btn-check" style="background:var(--purple)" onclick="checkGeneric('B')">CONTROLLA</button>
+                <button id="checkB" class="btn-check" onclick="checkGeneric('B')" style="background:var(--purple)">CONTROLLA</button>
                 <div class="game-controls">
-                    <button class="btn-act btn-edit" onclick="manualEdit('B')">Edit</button>
-                    <button class="btn-act btn-postpone" onclick="togglePause('B')">Pausa</button>
+                    <button class="btn-act btn-edit" onclick="manualEdit('B')">Modifica</button>
+                    <button class="btn-act btn-postpone" onclick="togglePause('B')">Posticipa</button>
                     <button class="btn-act btn-delete" onclick="manualDelete('B')">Elimina</button>
                 </div>
             </div>
-            <button id="restartB" style="display:none; background:var(--green); color:white; padding:15px; border-radius:10px; width:100%; margin-top:10px;" onclick="restartSession('B')">RICOMINCIA 🔄</button>
+            <button id="restartB" class="btn-restart" onclick="restartSession('B')">RICOMINCIA SESSIONE 🔄</button>
         </div>
-        <div class="add-container"><input type="text" id="newEnB" class="add-input" placeholder="Inglese"><input type="text" id="newItB" class="add-input" placeholder="Italiano"><button class="btn-add" style="background:var(--purple)" onclick="addNewItem('B')">AGGIUNGI</button></div>
-        <div class="search-container"><input type="text" id="searchB" class="search-input" placeholder="Cerca..." oninput="renderTable('B')"><button class="btn-tool" style="background:var(--purple)" onclick="forceAltRotation('B')">ALT 🔄</button></div>
-        <div class="admin-panel"><div class="list-header">Lista Grammar (Scorri ➔)</div><div class="scroll-area"><table id="tableB"></table></div></div>
+        <div class="add-container"><input type="text" id="newEnB" class="add-input" placeholder="Testo Inglese" onkeydown="if(event.key==='Enter') addNewItem('B')"><input type="text" id="newItB" class="add-input" placeholder="Traduzione Italiana" onkeydown="if(event.key==='Enter') addNewItem('B')"><button class="btn-add" style="background:var(--purple)" onclick="addNewItem('B')">AGGIUNGI +</button></div>
+        <div class="search-container">
+            <input type="text" id="searchB" class="search-input" placeholder="Cerca..." oninput="renderTable('B')">
+            <button class="btn-tool" style="background:var(--grey)" onclick="refreshList('B')">🔄 AGGIORNA</button>
+            <button class="btn-tool" style="background:var(--orange)" onclick="postponeAll('B')">⏳ POSTICIPA TUTTO</button>
+            <button class="btn-tool" style="background:var(--teal)" onclick="reactivateAll('B')">⚡ RIATTIVA TUTTO</button>
+            <button class="btn-tool" style="background:var(--purple)" onclick="forceAltRotation('B')">RUOTA ALT 🔄</button>
+        </div>
+        <div class="admin-panel"><div class="list-header">Lista Lesson and Grammar</div><div class="scroll-area"><table id="tableB"></table></div></div>
     </section>
 
     <section id="sectionC" class="db-section">
         <div class="card">
             <div class="card-header">
-                <div id="infoC" style="font-size:12px; font-weight:bold; color:var(--dark-blue);"></div>
+                <div id="infoC" style="font-weight: bold; color: #7f8c8d;"></div>
                 <select id="gameModeC" class="card-mode-selector" onchange="syncFromGame('C')">
-                    <option value="en">Eng -> Ita</option><option value="it">Ita -> Eng</option><option value="alt">Modalità Alt</option>
+                    <option value="en">Eng -> Ita</option>
+                    <option value="it">Ita -> Eng</option>
+                    <option value="alt">Modalità Alt</option>
                 </select>
             </div>
-            <div class="word-display"><span id="displayC">...</span><button id="speakBtnC" style="background:none; font-size:24px;">🔊</button></div>
+            <div class="word-display"><span id="displayC">...</span><button id="speakBtnC" onclick="speakItem(dbs.C.current.full)" style="background:none; font-size:30px;">🔊</button></div>
             <div id="gameC">
-                <input type="text" id="ansC" class="game-input" placeholder="Risposta..." autocomplete="off">
+                <input type="text" id="ansC" class="game-input" placeholder="Paradigma o Traduzione..." autocomplete="off">
                 <div id="fbC" class="feedback-area"></div>
-                <button id="checkC" class="btn-check" style="background:var(--dark-blue)" onclick="checkVerb()">CONTROLLA</button>
+                <button id="checkC" class="btn-check" onclick="checkVerb()" style="background:var(--dark-blue)">CONTROLLA</button>
                 <div class="game-controls">
-                    <button class="btn-act btn-edit" onclick="manualEdit('C')">Edit</button>
-                    <button class="btn-act btn-postpone" onclick="togglePause('C')">Pausa</button>
+                    <button class="btn-act btn-edit" onclick="manualEdit('C')">Modifica</button>
+                    <button class="btn-act btn-postpone" onclick="togglePause('C')">Posticipa</button>
                     <button class="btn-act btn-delete" onclick="manualDelete('C')">Elimina</button>
                 </div>
             </div>
-            <button id="restartC" style="display:none; background:var(--green); color:white; padding:15px; border-radius:10px; width:100%; margin-top:10px;" onclick="restartSession('C')">RICOMINCIA 🔄</button>
+            <button id="restartC" class="btn-restart" onclick="restartSession('C')">RICOMINCIA SESSIONE 🔄</button>
         </div>
-        <div class="add-container"><input type="text" id="newBaseC" class="add-input" placeholder="Base"><input type="text" id="newFullC" class="add-input" placeholder="Paradigma"><input type="text" id="newItC" class="add-input" placeholder="Traduzione"><button class="btn-add" style="background:var(--dark-blue)" onclick="addNewItem('C')">AGGIUNGI</button></div>
-        <div class="search-container"><input type="text" id="searchC" class="search-input" placeholder="Cerca..." oninput="renderTable('C')"><button class="btn-tool" style="background:var(--dark-blue)" onclick="forceAltRotation('C')">ALT 🔄</button></div>
-        <div class="admin-panel"><div class="list-header">Lista Verbi (Scorri ➔)</div><div class="scroll-area"><table id="tableC"></table></div></div>
+        <div class="add-container"><input type="text" id="newBaseC" class="add-input" placeholder="Base" onkeydown="if(event.key==='Enter') addNewItem('C')"><input type="text" id="newFullC" class="add-input" placeholder="Paradigma" onkeydown="if(event.key==='Enter') addNewItem('C')"><input type="text" id="newItC" class="add-input" placeholder="Traduzione" onkeydown="if(event.key==='Enter') addNewItem('C')"><button class="btn-add" style="background:var(--dark-blue)" onclick="addNewItem('C')">AGGIUNGI +</button></div>
+        <div class="search-container">
+            <input type="text" id="searchC" class="search-input" placeholder="Cerca..." oninput="renderTable('C')">
+            <button class="btn-tool" style="background:var(--grey)" onclick="refreshList('C')">🔄 AGGIORNA</button>
+            <button class="btn-tool" style="background:var(--orange)" onclick="postponeAll('C')">⏳ POSTICIPA TUTTO</button>
+            <button class="btn-tool" style="background:var(--teal)" onclick="reactivateAll('C')">⚡ RIATTIVA TUTTO</button>
+            <button class="btn-tool" style="background:var(--dark-blue)" onclick="forceAltRotation('C')">RUOTA ALT 🔄</button>
+        </div>
+        <div class="admin-panel"><div class="list-header">Lista Verbi</div><div class="scroll-area"><table id="tableC"></table></div></div>
     </section>
 
     <div class="backup-footer">
-        <button class="btn-backup btn-export" onclick="exportData()">💾 ESPORTA BACKUP</button>
-        <button class="btn-backup btn-import" onclick="document.getElementById('importFile').click()">📂 IMPORTA BACKUP</button>
+        <button class="btn-backup btn-export" onclick="exportData()">💾 ESPORTA TUTTI I DATI (BACKUP)</button>
+        <button class="btn-backup btn-import" onclick="document.getElementById('importFile').click()">📂 IMPORTA DATI DA FILE</button>
         <input type="file" id="importFile" style="display:none" onchange="importData(event)">
     </div>
 
@@ -194,107 +215,333 @@
         C: { key: 'VERBI_PRO_STABLE_V15', data: [], deck: [], current: null }
     };
 
-    function formatText(text) { return text ? text.split(',').map(i => i.trim()).join(', ').toUpperCase() : ""; }
-    function speakItem(text) { if(!text) return; window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text.replace(/[/\\|()]/g, ' ')); msg.lang = 'en-US'; window.speechSynthesis.speak(msg); }
-    function showToast(msg) { const t = document.getElementById("toast"); t.innerText = msg; t.className = "show"; setTimeout(() => t.className = "", 3000); }
+    function formatText(text) {
+        if(!text) return "";
+        return text.split(',').map(item => item.trim()).join(', ').toUpperCase();
+    }
+
+    function speakItem(text) {
+        if (!text) return;
+        window.speechSynthesis.cancel();
+        let cleanText = text.replace(/[/\\|()]/g, ' '); 
+        const msg = new SpeechSynthesisUtterance(cleanText);
+        msg.lang = 'en-US';
+        window.speechSynthesis.speak(msg);
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.innerText = msg; t.className = "show";
+        setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+    }
+
+    async function getBestTranslation(text) {
+        try {
+            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|it`);
+            const data = await res.json();
+            return data.responseData.translatedText.toLowerCase();
+        } catch (e) { return ""; }
+    }
+
+    function init() {
+        ['A', 'B', 'C'].forEach(t => {
+            let saved = localStorage.getItem(dbs[t].key);
+            dbs[t].data = saved ? JSON.parse(saved) : [];
+            buildDeck(t); 
+            t === 'C' ? nextVerb() : nextCard(t);
+            renderTable(t);
+        });
+    }
+
+    function buildDeck(t) { 
+        const now = Date.now();
+        dbs[t].deck = dbs[t].data.filter(w => !w.nextReview || now > w.nextReview).sort(() => Math.random() - 0.5);
+    }
 
     function save(t) { localStorage.setItem(dbs[t].key, JSON.stringify(dbs[t].data)); }
-    function init() { ['A', 'B', 'C'].forEach(t => { const s = localStorage.getItem(dbs[t].key); dbs[t].data = s ? JSON.parse(s) : []; buildDeck(t); t === 'C' ? nextVerb() : nextCard(t); renderTable(t); }); }
-    function buildDeck(t) { const now = Date.now(); dbs[t].deck = dbs[t].data.filter(w => !w.nextReview || now > w.nextReview).sort(() => Math.random() - 0.5); }
 
     function switchTab(t) {
         document.querySelectorAll('.db-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-a','active-b','active-c'));
         document.getElementById('section' + t).classList.add('active');
         document.getElementById('nav'+t).classList.add('active-'+t.toLowerCase());
+        if(t === 'C') nextVerb(); else { buildDeck(t); nextCard(t); }
         renderTable(t);
     }
 
-    function nextCard(t, keep = false) {
-        const game = document.getElementById('game'+t), rest = document.getElementById('restart'+t), disp = document.getElementById('display'+t);
-        if(dbs[t].deck.length === 0 && !keep && !dbs[t].current) { disp.innerText = "FINITA! ✅"; game.style.display="none"; rest.style.display="block"; return; }
-        game.style.display="block"; rest.style.display="none";
-        if(!keep) dbs[t].current = dbs[t].deck.pop();
-        const mode = document.getElementById('gameMode'+t).value = dbs[t].current.mode || 'en';
-        const showEn = mode === 'en' || (mode === 'alt' && dbs[t].current.lastAltState !== 'it');
-        disp.innerText = showEn ? dbs[t].current.en : dbs[t].current.it;
+    function syncFromGame(t) {
+        if (!dbs[t].current) return;
+        const val = document.getElementById('gameMode' + t).value;
+        const idx = dbs[t].data.indexOf(dbs[t].current);
+        if (idx > -1) { updateMode(t, idx, val); }
+        if(t === 'C') nextVerb(true); else nextCard(t, true);
+    }
+
+    function nextCard(t, keepCurrent = false) {
+        const btn = document.getElementById('check' + t);
+        if (dbs[t].deck.length === 0 && !keepCurrent && !dbs[t].current) { 
+            document.getElementById('display' + t).innerText = "FINITA! ✅";
+            document.getElementById('game' + t).style.display = "none"; 
+            document.getElementById('restart' + t).style.display = "inline-block"; return;
+        }
+        document.getElementById('game' + t).style.display = "block";
+        document.getElementById('restart' + t).style.display = "none";
+        if(!keepCurrent) dbs[t].current = dbs[t].deck.pop();
+        if (dbs[t].current) { document.getElementById('gameMode' + t).value = dbs[t].current.mode || 'en'; }
+
+        const selectedMode = document.getElementById('gameMode' + t).value;
+        let showEn;
+        if(selectedMode === 'en') showEn = true;
+        else if(selectedMode === 'it') showEn = false;
+        else showEn = (dbs[t].current.lastAltState !== 'it');
+
+        document.getElementById('display' + t).innerText = showEn ? dbs[t].current.en : dbs[t].current.it;
         dbs[t].current._target = showEn ? dbs[t].current.it : dbs[t].current.en;
-        if(!keep) { document.getElementById('ans'+t).value = ""; document.getElementById('fb'+t).innerText = ""; document.getElementById('check'+t).innerText = "CONTROLLA"; }
-        document.getElementById('info'+t).innerText = `RIMANENTI: ${dbs[t].deck.length + (dbs[t].current?1:0)}`;
+        if(!keepCurrent) { document.getElementById('ans' + t).value = ""; document.getElementById('fb' + t).innerText = ""; btn.innerText = "CONTROLLA"; }
+        document.getElementById('info' + t).innerText = `RESTANTI: ${dbs[t].deck.length + (dbs[t].current ? 1 : 0)}`;
+        document.getElementById('ans' + t).focus();
     }
 
     function checkGeneric(t) {
-        const btn = document.getElementById('check'+t);
+        const btn = document.getElementById('check' + t);
         if(btn.innerText === "PROSSIMO") { nextCard(t); return; }
-        document.getElementById('fb'+t).innerText = formatText(dbs[t].current._target);
+        
+        const feedbackText = formatText(dbs[t].current._target).replace(/, /g, ',\n');
+        document.getElementById('fb' + t).innerText = feedbackText;
+        
         btn.innerText = "PROSSIMO";
     }
 
-    function nextVerb(keep = false) {
-        const game = document.getElementById('gameC'), rest = document.getElementById('restartC'), disp = document.getElementById('displayC');
-        if(dbs.C.deck.length === 0 && !keep && !dbs.C.current) { disp.innerText = "FINITA! ✅"; game.style.display="none"; rest.style.display="block"; return; }
-        game.style.display="block"; rest.style.display="none";
-        if(!keep) dbs.C.current = dbs.C.deck.pop();
-        const mode = document.getElementById('gameModeC').value = dbs.C.current.mode || 'en';
-        const showEn = mode === 'en' || (mode === 'alt' && dbs.C.current.lastAltState !== 'it');
-        disp.innerText = showEn ? dbs.C.current.base : dbs.C.current.it;
-        document.getElementById('speakBtnC').onclick = () => speakItem(dbs.C.current.full);
-        if(!keep) { document.getElementById('ansC').value = ""; document.getElementById('fbC').innerText = ""; document.getElementById('checkC').innerText = "CONTROLLA"; }
-        document.getElementById('infoC').innerText = `RIMANENTI: ${dbs.C.deck.length + (dbs.C.current?1:0)}`;
+    function nextVerb(keepCurrent = false) {
+        const btn = document.getElementById('checkC');
+        if (dbs.C.deck.length === 0 && !keepCurrent && !dbs.C.current) {
+            document.getElementById('displayC').innerText = "FINITA! ✅";
+            document.getElementById('gameC').style.display = "none";
+            document.getElementById('restartC').style.display = "inline-block"; return;
+        }
+        document.getElementById('gameC').style.display = "block";
+        document.getElementById('restartC').style.display = "none";
+        if(!keepCurrent) dbs.C.current = dbs.C.deck.pop();
+        if (dbs.C.current) { document.getElementById('gameModeC').value = dbs.C.current.mode || 'en'; }
+
+        const selectedMode = document.getElementById('gameModeC').value;
+        let showEn;
+        if(selectedMode === 'en') showEn = true;
+        else if(selectedMode === 'it') showEn = false;
+        else showEn = (dbs.C.current.lastAltState !== 'it');
+
+        document.getElementById('displayC').innerText = showEn ? dbs.C.current.base : dbs.C.current.it;
+        document.getElementById('speakBtnC').setAttribute('onclick', `speakItem('${dbs.C.current.full.replace(/'/g, "\\'")}')`);
+        if(!keepCurrent) { document.getElementById('ansC').value = ""; document.getElementById('fbC').innerText = ""; btn.innerText = "CONTROLLA"; }
+        document.getElementById('infoC').innerText = `RESTANTI: ${dbs.C.deck.length + (dbs.C.current ? 1 : 0)}`;
+        document.getElementById('ansC').focus();
     }
 
     function checkVerb() {
         const btn = document.getElementById('checkC');
         if(btn.innerText === "PROSSIMO") { nextVerb(); return; }
-        const mode = document.getElementById('gameModeC').value;
-        const showingIta = (mode === 'it') || (mode === 'alt' && dbs.C.current.lastAltState === 'it');
-        document.getElementById('fbC').innerText = showingIta ? `${formatText(dbs.C.current.base)} - ${formatText(dbs.C.current.full)}` : `${formatText(dbs.C.current.full)}\n(${formatText(dbs.C.current.it)})`;
+        const paradigm = formatText(dbs.C.current.full);
+        
+        const translation = formatText(dbs.C.current.it).replace(/, /g, ',\n');
+        
+        const base = formatText(dbs.C.current.base);
+        const selectedMode = document.getElementById('gameModeC').value;
+        const showingIta = (selectedMode === 'it') || (selectedMode === 'alt' && dbs.C.current.lastAltState === 'it');
+
+        if(showingIta) { document.getElementById('fbC').innerText = base + " - " + paradigm; } 
+        else { document.getElementById('fbC').innerText = paradigm + "\n(" + translation + ")"; }
         btn.innerText = "PROSSIMO";
     }
 
     function renderTable(t) {
-        const table = document.getElementById('table'+t), q = document.getElementById('search'+t).value.toLowerCase();
-        table.innerHTML = `<tr><th class="col-idx">#</th><th class="col-main">Parola</th><th class="col-trans">Traduzione</th><th>P/R</th><th>🗑️</th></tr>`;
-        dbs[t].data.forEach((w, i) => {
-            if((t==='C'?w.base:w.en).toLowerCase().includes(q) || w.it.toLowerCase().includes(q)) {
-                const isP = w.nextReview > Date.now();
-                const r = table.insertRow();
-                r.innerHTML = `<td>${i+1}</td><td class="col-main">${t==='C'?w.base:w.en}${isP?' (P)':''}</td><td><span class="hidden-text">${w.it}</span></td>
-                <td><button onclick="togglePause('${t}',${i})" style="background:${isP?'#27ae60':'#f39c12'}; color:white; border-radius:4px; padding:5px;">${isP?'R':'P'}</button></td>
-                <td><button onclick="manualDelete('${t}',${i})" style="background:#e74c3c; color:white; border-radius:4px; padding:5px;">🗑️</button></td>`;
+        const table = document.getElementById('table' + t);
+        const query = document.getElementById('search' + t).value.toLowerCase();
+        const now = Date.now();
+        table.innerHTML = `<tr><th class="col-idx">#</th><th class="col-main">Principale</th><th class="col-trans">Traduzione</th><th>Lingua Predef.</th><th>🔊</th><th>✏️</th><th>P/R</th><th>🗑️</th></tr>`;
+        dbs[t].data.forEach((w, idx) => {
+            const match = (t === 'C' ? w.base : w.en).toLowerCase().includes(query) || w.it.toLowerCase().includes(query);
+            if (match) {
+                const isP = w.nextReview > now, mType = w.mode || 'en';
+                let curMain, curTrans, speakText;
+               
+                if (t === 'C') {
+                    speakText = w.full;
+                    const horizSpacer = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;➔&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                    if(mType === 'it') { curMain = w.it; curTrans = `${w.base} | ${w.full}`; }
+                    else if(mType === 'alt') { 
+                        const showEn = (w.lastAltState !== 'it');
+                        curMain = showEn ? w.base : w.it;
+                        curTrans = showEn ? `${w.full}${horizSpacer}[ ${w.it} ]` : w.full;
+                    } else { 
+                        curMain = w.base; 
+                        curTrans = `${w.full}${horizSpacer}[ ${w.it} ]`; 
+                    }
+                } else {
+                    speakText = w.en;
+                    if(mType === 'en') { curMain = w.en; curTrans = w.it; }
+                    else if(mType === 'it') { curMain = w.it; curTrans = w.en; }
+                    else { 
+                        const isEnNow = (w.lastAltState !== 'it');
+                        curMain = isEnNow ? w.en : w.it;
+                        curTrans = isEnNow ? w.it : w.en;
+                    }
+                }
+                const row = table.insertRow();
+                let mainContent = isP ? curMain + " (P)" : `<span class="list-active-highlight">${curMain}</span>`;
+
+                row.innerHTML = `<td class="col-idx">${idx+1}</td>
+                <td class="col-main">${mainContent}</td>
+                <td class="col-trans"><span class="hidden-text" onclick="togglePause('${t}',${idx})">${curTrans}</span></td>
+                <td><select onchange="updateMode('${t}',${idx},this.value)"><option value="en" ${mType==='en'?'selected':''}>En</option><option value="it" ${mType==='it'?'selected':''}>Ita</option><option value="alt" ${mType==='alt'?'selected':''}>Alt</option></select></td>
+                <td><button class="list-btn btn-edit-list" style="background:none; font-size:18px;" onclick="speakItem('${speakText.replace(/'/g,"\\")}')">🔊</button></td>
+                <td><button class="list-btn btn-edit-list" onclick="manualEdit('${t}',${idx})">✏️</button></td>
+                <td><button class="list-btn ${isP ? 'btn-reactivate-list' : 'btn-postpone-list'}" onclick="togglePause('${t}',${idx})">${isP ? 'R' : 'P'}</button></td>
+                <td><button class="list-btn btn-trash-list" onclick="manualDelete('${t}',${idx})">🗑️</button></td>`;
             }
         });
     }
 
-    function syncFromGame(t) { if(dbs[t].current) { dbs[t].current.mode = document.getElementById('gameMode'+t).value; save(t); t==='C'?nextVerb(true):nextCard(t,true); } }
-    function forceAltRotation(t) { dbs[t].data.forEach(w => w.lastAltState = w.lastAltState === 'it' ? 'en' : 'it'); save(t); buildDeck(t); t==='C'?nextVerb():nextCard(t); renderTable(t); }
-
-    function exportData() { 
-        const blob = new Blob([JSON.stringify({A: dbs.A.data, B: dbs.B.data, C: dbs.C.data})], {type:'text/plain'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup_flashcards.txt"; a.click();
-    }
-    function importData(e) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const imp = JSON.parse(ev.target.result);
-            if(confirm("Sovrascrivere dati?")) { dbs.A.data=imp.A; dbs.B.data=imp.B; dbs.C.data=imp.C; ['A','B','C'].forEach(save); location.reload(); }
-        };
-        reader.readAsText(e.target.files[0]);
+    function updateMode(t, idx, val) { 
+        dbs[t].data[idx].mode = val; save(t); 
+        if(dbs[t].current === dbs[t].data[idx]) { if(t === 'C') nextVerb(true); else nextCard(t, true); }
+        renderTable(t); 
     }
 
-    function togglePause(t, i) { let w = (i===undefined)?dbs[t].current:dbs[t].data[i]; if(!w) return; w.nextReview = (w.nextReview > Date.now()) ? 0 : Date.now() + 2592000000; save(t); buildDeck(t); renderTable(t); if(i===undefined) t==='C'?nextVerb():nextCard(t); }
-    function manualDelete(t, i) { if(confirm("Eliminare?")) { const idx = (i===undefined)?dbs[t].data.indexOf(dbs[t].current):i; dbs[t].data.splice(idx,1); save(t); buildDeck(t); renderTable(t); if(i===undefined) t==='C'?nextVerb():nextCard(t); } }
-    function addNewItem(t) {
-        if(t==='C') {
-            const b=document.getElementById('newBaseC').value, f=document.getElementById('newFullC').value, i=document.getElementById('newItC').value;
-            if(b && f && i) { dbs.C.data.push({base:b, full:f, it:i, nextReview:0, lastAltState:'en'}); document.getElementById('newBaseC').value=document.getElementById('newFullC').value=document.getElementById('newItC').value=""; }
-        } else {
-            const e=document.getElementById('newEn'+t).value, i=document.getElementById('newIt'+t).value;
-            if(e && i) { dbs[t].data.push({en:e, it:i, nextReview:0, lastAltState:'en'}); document.getElementById('newEn'+t).value=document.getElementById('newIt'+t).value=""; }
+    function refreshList(t) { document.getElementById('search' + t).value = ""; renderTable(t); showToast("Lista aggiornata!"); }
+
+    function postponeAll(t) {
+        if(confirm("Vuoi posticipare TUTTI gli elementi di questo database per 30 giorni?")) {
+            const future = Date.now() + (30 * 24 * 60 * 60 * 1000);
+            dbs[t].data.forEach(w => w.nextReview = future);
+            save(t); buildDeck(t); renderTable(t);
+            t === 'C' ? nextVerb() : nextCard(t);
+            showToast("Tutto posticipato!");
         }
-        save(t); buildDeck(t); renderTable(t);
     }
-    function restartSession(t) { forceAltRotation(t); }
+
+    function reactivateAll(t) {
+        if(confirm("Vuoi riattivare TUTTI gli elementi di questo database?")) {
+            dbs[t].data.forEach(w => w.nextReview = 0);
+            save(t); buildDeck(t); renderTable(t);
+            t === 'C' ? nextVerb() : nextCard(t);
+            showToast("Tutto riattivato!");
+        }
+    }
+
+    function manualEdit(t, i) { 
+        let item; const isFromCard = (i === undefined);
+        if (isFromCard) { item = dbs[t].current; if (!item) return showToast("Nessuna parola attiva!"); } else { item = dbs[t].data[i]; }
+
+        if (t === 'C') {
+            const v1 = prompt("Base (Infinito):", item.base);
+            const v2 = prompt("Paradigma (Past/Participle):", item.full);
+            const v3 = prompt("Traduzione Italiana:", item.it);
+            if (v1 && v2 && v3) { item.base = v1; item.full = v2; item.it = v3; if (isFromCard) nextVerb(true); }
+        } else {
+            const v1 = prompt("Parola/Frase Inglese:", item.en);
+            const v2 = prompt("Traduzione Italiana:", item.it);
+            if (v1 && v2) { item.en = v1; item.it = v2; if (isFromCard) nextCard(t, true); }
+        }
+        save(t); renderTable(t); showToast("Modifica salvata!");
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            if (e.target.classList.contains('add-input') || e.target.classList.contains('search-input')) return;
+            e.preventDefault();
+            const activeSection = document.querySelector('.db-section.active');
+            if (!activeSection) return;
+            const currentTabId = activeSection.id.replace('section', '');
+            if (currentTabId === 'C') checkVerb(); else checkGeneric(currentTabId);
+        }
+    });
+
+    async function addNewItem(t) {
+        if (t === 'C') {
+            const base = document.getElementById('newBaseC').value.trim();
+            const full = document.getElementById('newFullC').value.trim();
+            const it = document.getElementById('newItC').value.trim();
+            if(!base) return;
+            if(!it || !full) {
+                const trans = await getBestTranslation(base);
+                if(!it) document.getElementById('newItC').value = trans;
+                if(!full) document.getElementById('newFullC').focus();
+                return;
+            }
+            dbs[t].data.push({ base, full, it, nextReview: 0, mode: 'en', lastAltState: 'en' });
+            document.getElementById('newBaseC').value = ''; document.getElementById('newFullC').value = ''; document.getElementById('newItC').value = '';
+        } else {
+            const en = document.getElementById('newEn' + t).value.trim();
+            const itInput = document.getElementById('newIt' + t);
+            const itValue = itInput.value.trim();
+            if(!en) return;
+            if(!itValue) { const trans = await getBestTranslation(en); itInput.value = trans; return; }
+            dbs[t].data.push({ en, it: itValue, nextReview: 0, mode: 'en', lastAltState: 'en' });
+            document.getElementById('newEn' + t).value = ''; itInput.value = '';
+        }
+        save(t); buildDeck(t); renderTable(t); showToast("Aggiunto!");
+    }
+
+    function forceAltRotation(t) {
+        dbs[t].data.forEach(w => { w.lastAltState = (w.lastAltState === 'it' ? 'en' : 'it'); });
+        save(t); buildDeck(t); renderTable(t); showToast("Lingue invertite!");
+    }
+
+    function exportData() {
+        const fullData = { A: dbs.A.data, B: dbs.B.data, C: dbs.C.data };
+        const blob = new Blob([JSON.stringify(fullData)], { type: 'text/plain' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        a.download = "backup.txt"; a.click();
+    }
+
+    function importData(event) {
+        const file = event.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (confirm("Sovrascrivere?")) {
+                    if(imported.A) dbs.A.data = imported.A;
+                    if(imported.B) dbs.B.data = imported.B; if(imported.C) dbs.C.data = imported.C;
+                    ['A','B','C'].forEach(save); location.reload();
+                }
+            } catch (err) { alert("Errore file"); }
+        };
+        reader.readAsText(file);
+    }
+
+    function manualDelete(t, i) { 
+        if (i === undefined) {
+            const idx = dbs[t].data.indexOf(dbs[t].current);
+            if (idx > -1 && confirm("Eliminare questa parola?")) { 
+                dbs[t].data.splice(idx, 1); 
+                save(t); 
+                renderTable(t); 
+                t === 'C' ? nextVerb() : nextCard(t); 
+            }
+        } else { 
+            if(confirm("Eliminare?")) { 
+                dbs[t].data.splice(i, 1); 
+                save(t); 
+                buildDeck(t); 
+                renderTable(t); 
+            } 
+        }
+    }
+
+    function togglePause(t, i) { 
+        let item = (i === undefined) ? dbs[t].current : dbs[t].data[i];
+        if (!item) return;
+        const isP = item.nextReview > Date.now(); 
+        item.nextReview = isP ? 0 : Date.now() + (30*24*60*60*1000); 
+        save(t); 
+        if (i !== undefined) buildDeck(t); 
+        renderTable(t); 
+        if (i === undefined) t === 'C' ? nextVerb() : nextCard(t);
+        showToast(isP ? "Elemento riattivato!" : "Elemento posticipato!");
+    }
+
+    function restartSession(t) { forceAltRotation(t); buildDeck(t); t === 'C' ? nextVerb() : nextCard(t); }
 
     init();
 </script>
