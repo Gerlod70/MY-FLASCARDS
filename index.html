@@ -2,16 +2,16 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Flashcards Pro - V51.9.1</title>
     <style>
         :root { --blue: #007bff; --purple: #6f42c1; --dark-blue: #2c3e50; --bg: #f4f7f9; --text-dark: #2d3436; --deep-blue: #0984e3; --light-gray: #f1f2f6; --red: #e74c3c; --green: #27ae60; --orange: #f39c12; --teal: #00cec9; --grey: #636e72; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; color: var(--text-dark); }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; color: var(--text-dark); overflow-x: hidden; width: 100vw; }
         
         button, .nav-btn, .list-btn { transition: transform 0.1s ease, opacity 0.1s ease; outline: none; cursor: pointer; border: none; }
         button:active, .nav-btn:active, .list-btn:active { transform: scale(0.92); opacity: 0.7; }
 
-        .main-nav { background: #2c3e50; width: 100%; display: flex; justify-content: center; padding: 12px 0; gap: 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .main-nav { background: #2c3e50; width: 100%; display: flex; justify-content: center; padding: 12px 0; gap: 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); flex-wrap: wrap; }
         .nav-btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; color: white; background: #455a64; font-size: 14px; }
         .nav-btn.active-a { background: var(--blue); }
         .nav-btn.active-b { background: var(--purple); }
@@ -20,20 +20,21 @@
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px; }
         .card-mode-selector { padding: 5px 10px; border-radius: 8px; border: 1px solid #ddd; background: #f8f9fa; font-size: 13px; font-weight: bold; color: var(--text-dark); outline: none; }
 
-        .card { background: white; width: 1000px; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 25px; border-top: 8px solid #ddd; box-sizing: border-box; }
+        /* Sostituiti i width fissi con max-width per garantire che su PC resti uguale e su mobile si adatti */
+        .card { background: white; width: 100%; max-width: 1000px; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 25px; border-top: 8px solid #ddd; box-sizing: border-box; }
         #sectionA .card { border-color: var(--blue); }
         #sectionB .card { border-color: var(--purple); }
         #sectionC .card { border-color: var(--dark-blue); }
 
-        .word-display { font-size: 34px; font-weight: 800; margin: 25px 0; display: flex; align-items: center; justify-content: center; gap: 15px; min-height: 60px; color: #1a1a1a; }
-        .game-input { width: 85%; padding: 18px; border: 2px solid #b2bec3; border-radius: 10px; font-size: 22px; text-align: center; outline: none; margin: 0 auto 10px auto; display: block; box-sizing: border-box; }
+        .word-display { font-size: 34px; font-weight: 800; margin: 25px 0; display: flex; align-items: center; justify-content: center; gap: 15px; min-height: 60px; color: #1a1a1a; word-break: break-word; }
+        .game-input { width: 85%; max-width: 850px; padding: 18px; border: 2px solid #b2bec3; border-radius: 10px; font-size: 22px; text-align: center; outline: none; margin: 0 auto 10px auto; display: block; box-sizing: border-box; }
         
-        .feedback-area { margin: 0 auto 20px auto; width: 85%; font-weight: 900; font-size: 26px; min-height: 45px; color: var(--deep-blue); line-height: 1.4; white-space: pre-line; text-align: left; }
+        .feedback-area { margin: 0 auto 20px auto; width: 85%; max-width: 850px; font-weight: 900; font-size: 26px; min-height: 45px; color: var(--deep-blue); line-height: 1.4; white-space: pre-line; text-align: left; }
         
-        .btn-check { width: 85%; padding: 18px; border-radius: 10px; font-weight: bold; color: white; background: #2d3436; font-size: 18px; text-transform: uppercase; margin: 0 auto 15px auto; display: block; }
+        .btn-check { width: 85%; max-width: 850px; padding: 18px; border-radius: 10px; font-weight: bold; color: white; background: #2d3436; font-size: 18px; text-transform: uppercase; margin: 0 auto 15px auto; display: block; }
         .btn-restart { background: #27ae60; color: white; padding: 15px 30px; border-radius: 10px; font-size: 20px; font-weight: bold; margin-top: 20px; display: none; }
 
-        .game-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 85%; margin: 0 auto; }
+        .game-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 85%; max-width: 850px; margin: 0 auto; }
         .btn-act { padding: 14px; border-radius: 8px; color: white; font-weight: bold; font-size: 14px; text-transform: uppercase; }
         .btn-edit { background: #636e72; }
         .btn-postpone { background: var(--orange); }
@@ -42,19 +43,22 @@
         .db-section { display: none; width: 100%; flex-direction: column; align-items: center; padding: 20px 0; }
         .db-section.active { display: flex; }
 
-        .add-container { width: 1200px; background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee; box-sizing: border-box;}
+        .add-container { width: 100%; max-width: 1200px; background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee; box-sizing: border-box;}
         .add-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
         .btn-add { background: var(--green); color: white; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 14px; }
 
-        .search-container { width: 1200px; margin-bottom: 15px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .search-input { width: 250px; padding: 12px 15px; border-radius: 10px; border: 1px solid #dfe6e9; font-size: 16px; outline: none; }
+        .search-container { width: 100%; max-width: 1200px; margin-bottom: 15px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; box-sizing: border-box; padding: 0 5px; }
+        .search-input { width: 250px; flex-grow: 1; padding: 12px 15px; border-radius: 10px; border: 1px solid #dfe6e9; font-size: 16px; outline: none; box-sizing: border-box; }
         .btn-tool { padding: 10px 15px; border-radius: 8px; color: white; font-weight: bold; font-size: 12px; text-transform: uppercase; }
         
-        .admin-panel { background: white; width: 1200px; border-radius: 15px; border: 1px solid #dfe6e9; margin-bottom: 30px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .admin-panel { background: white; width: 100%; max-width: 1200px; border-radius: 15px; border: 1px solid #dfe6e9; margin-bottom: 30px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; }
         .list-header { padding: 18px 25px; background: #f8f9fa; border-bottom: 2px solid #eee; font-weight: bold; }
-        .scroll-area { max-height: 1000px; overflow-y: auto; overflow-x: hidden; position: relative; }
         
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        /* Modifica chiave: overflow-x su auto per poter scorrere la tabella su iPhone */
+        .scroll-area { max-height: 1000px; overflow-y: auto; overflow-x: auto; position: relative; -webkit-overflow-scrolling: touch; }
+        
+        /* Aggiunto min-width: 1000px così la tabella non si deforma su mobile */
+        table { width: 100%; min-width: 1000px; border-collapse: collapse; table-layout: fixed; }
         th { background: #2d3436; padding: 15px 5px; font-size: 11px; color: white; text-transform: uppercase; text-align: center; position: sticky; top: 0; z-index: 10; }
         td { padding: 12px 4px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; vertical-align: middle; }
         
@@ -76,7 +80,7 @@
 
         tr:hover .hidden-text { filter: blur(0); background: var(--deep-blue); color: white !important; font-weight: bold; }
         
-        .backup-footer { width: 1200px; display: flex; justify-content: center; gap: 20px; margin-top: 20px; padding: 20px; border-top: 2px dashed #ccc; }
+        .backup-footer { width: 100%; max-width: 1200px; display: flex; justify-content: center; gap: 20px; margin-top: 20px; padding: 20px; border-top: 2px dashed #ccc; box-sizing: border-box; }
         .btn-backup { padding: 15px 25px; border-radius: 10px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
         .btn-export { background: #2d3436; }
         .btn-import { background: #636e72; }
@@ -88,6 +92,19 @@
 
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* Media Queries per adattamento solo su schermi piccoli (iPhone), su PC > 1200px resta intatto */
+        @media (max-width: 1250px) {
+            body { padding: 0 10px; }
+            .game-input, .btn-check, .feedback-area, .game-controls { width: 100%; max-width: none; }
+        }
+        @media (max-width: 768px) {
+            .card { padding: 15px; }
+            .add-container { flex-direction: column; }
+            .btn-tool { flex: 1; text-align: center; }
+            .backup-footer { flex-direction: column; align-items: stretch; }
+            .btn-backup { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -363,7 +380,7 @@
             if (match) {
                 const isP = w.nextReview > now, mType = w.mode || 'en';
                 let curMain, curTrans, speakText;
-               
+                
                 if (t === 'C') {
                     speakText = w.full;
                     const horizSpacer = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;➔&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
@@ -427,6 +444,22 @@
             showToast("Tutto riattivato!");
         }
     }
+    
+    function togglePause(t, i) { 
+        let w = (i===undefined)?dbs[t].current:dbs[t].data[i]; 
+        if(!w) return; 
+        w.nextReview = (w.nextReview > Date.now()) ? 0 : Date.now() + 2592000000; 
+        save(t); buildDeck(t); renderTable(t); 
+        if(i===undefined) t==='C'?nextVerb():nextCard(t); 
+    }
+    
+    function manualDelete(t, i) { 
+        if(confirm("Eliminare?")) { 
+            const idx = (i===undefined)?dbs[t].data.indexOf(dbs[t].current):i; 
+            dbs[t].data.splice(idx,1); save(t); buildDeck(t); renderTable(t); 
+            if(i===undefined) t==='C'?nextVerb():nextCard(t); 
+        } 
+    }
 
     function manualEdit(t, i) { 
         let item; const isFromCard = (i === undefined);
@@ -486,6 +519,10 @@
         dbs[t].data.forEach(w => { w.lastAltState = (w.lastAltState === 'it' ? 'en' : 'it'); });
         save(t); buildDeck(t); renderTable(t); showToast("Lingue invertite!");
     }
+    
+    function restartSession(t) {
+        forceAltRotation(t);
+    }
 
     function exportData() {
         const fullData = { A: dbs.A.data, B: dbs.B.data, C: dbs.C.data };
@@ -499,50 +536,21 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
-                const imported = JSON.parse(e.target.result);
-                if (confirm("Sovrascrivere?")) {
-                    if(imported.A) dbs.A.data = imported.A;
-                    if(imported.B) dbs.B.data = imported.B; if(imported.C) dbs.C.data = imported.C;
-                    ['A','B','C'].forEach(save); location.reload();
+                const imp = JSON.parse(e.target.result);
+                if (confirm("Attenzione: questo sovrascriverà tutti i dati correnti. Sei sicuro di voler procedere?")) {
+                    if (imp.A) dbs.A.data = imp.A;
+                    if (imp.B) dbs.B.data = imp.B;
+                    if (imp.C) dbs.C.data = imp.C;
+                    ['A','B','C'].forEach(save);
+                    location.reload();
                 }
-            } catch (err) { alert("Errore file"); }
+            } catch (err) {
+                alert("Errore durante l'importazione. Assicurati che il file sia un backup valido.");
+            }
         };
         reader.readAsText(file);
     }
-
-    function manualDelete(t, i) { 
-        if (i === undefined) {
-            const idx = dbs[t].data.indexOf(dbs[t].current);
-            if (idx > -1 && confirm("Eliminare questa parola?")) { 
-                dbs[t].data.splice(idx, 1); 
-                save(t); 
-                renderTable(t); 
-                t === 'C' ? nextVerb() : nextCard(t); 
-            }
-        } else { 
-            if(confirm("Eliminare?")) { 
-                dbs[t].data.splice(i, 1); 
-                save(t); 
-                buildDeck(t); 
-                renderTable(t); 
-            } 
-        }
-    }
-
-    function togglePause(t, i) { 
-        let item = (i === undefined) ? dbs[t].current : dbs[t].data[i];
-        if (!item) return;
-        const isP = item.nextReview > Date.now(); 
-        item.nextReview = isP ? 0 : Date.now() + (30*24*60*60*1000); 
-        save(t); 
-        if (i !== undefined) buildDeck(t); 
-        renderTable(t); 
-        if (i === undefined) t === 'C' ? nextVerb() : nextCard(t);
-        showToast(isP ? "Elemento riattivato!" : "Elemento posticipato!");
-    }
-
-    function restartSession(t) { forceAltRotation(t); buildDeck(t); t === 'C' ? nextVerb() : nextCard(t); }
-
+    
     init();
 </script>
 </body>
