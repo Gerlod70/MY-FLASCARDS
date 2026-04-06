@@ -20,7 +20,6 @@
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 10px; }
         .card-mode-selector { padding: 5px 10px; border-radius: 8px; border: 1px solid #ddd; background: #f8f9fa; font-size: 13px; font-weight: bold; color: var(--text-dark); outline: none; }
 
-        /* Sostituiti i width fissi con max-width per garantire che su PC resti uguale e su mobile si adatti */
         .card { background: white; width: 100%; max-width: 1000px; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 25px; border-top: 8px solid #ddd; box-sizing: border-box; }
         #sectionA .card { border-color: var(--blue); }
         #sectionB .card { border-color: var(--purple); }
@@ -54,10 +53,8 @@
         .admin-panel { background: white; width: 100%; max-width: 1200px; border-radius: 15px; border: 1px solid #dfe6e9; margin-bottom: 30px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; }
         .list-header { padding: 18px 25px; background: #f8f9fa; border-bottom: 2px solid #eee; font-weight: bold; }
         
-        /* Modifica chiave: overflow-x su auto per poter scorrere la tabella su iPhone */
         .scroll-area { max-height: 1000px; overflow-y: auto; overflow-x: auto; position: relative; -webkit-overflow-scrolling: touch; }
         
-        /* Aggiunto min-width: 1000px così la tabella non si deforma su mobile */
         table { width: 100%; min-width: 1000px; border-collapse: collapse; table-layout: fixed; }
         th { background: #2d3436; padding: 15px 5px; font-size: 11px; color: white; text-transform: uppercase; text-align: center; position: sticky; top: 0; z-index: 10; }
         td { padding: 12px 4px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; vertical-align: middle; }
@@ -75,9 +72,7 @@
         .btn-trash-list { background: var(--red); box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3); }
         
         .hidden-text { background: var(--light-gray); color: var(--deep-blue); padding: 8px 12px; border-radius: 6px; cursor: pointer; display: block; width: 95%; border: 1px solid #dcdde1; box-sizing: border-box; filter: blur(4px); white-space: pre-wrap; word-break: break-word; transition: filter 0.2s; }
-        
         #tableC .hidden-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
         tr:hover .hidden-text { filter: blur(0); background: var(--deep-blue); color: white !important; font-weight: bold; }
         
         .backup-footer { width: 100%; max-width: 1200px; display: flex; justify-content: center; gap: 20px; margin-top: 20px; padding: 20px; border-top: 2px dashed #ccc; box-sizing: border-box; }
@@ -93,7 +88,14 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* Media Queries per adattamento solo su schermi piccoli (iPhone), su PC > 1200px resta intatto */
+        /* MODIFICA: Vista Orizzontale iPhone per colonne affiancate */
+        @media only screen and (max-width: 950px) and (orientation: landscape) {
+            table { min-width: 100%; }
+            .col-main { width: 30% !important; font-size: 12px; }
+            .col-trans { width: 50% !important; font-size: 12px; }
+            th, td { padding: 8px 2px; }
+        }
+
         @media (max-width: 1250px) {
             body { padding: 0 10px; }
             .game-input, .btn-check, .feedback-area, .game-controls { width: 100%; max-width: none; }
@@ -226,6 +228,9 @@
     </div>
 
 <script>
+    // COSTANTE PER RILEVARE IPHONE
+    const isIPhone = /iPhone|iPod|iPad/i.test(navigator.userAgent);
+
     let dbs = {
         A: { key: 'flash_v_pc_pro_DATABASE_A', data: [], deck: [], current: null },
         B: { key: 'flash_v_pc_pro_DATABASE_B', data: [], deck: [], current: null },
@@ -316,7 +321,11 @@
         dbs[t].current._target = showEn ? dbs[t].current.it : dbs[t].current.en;
         if(!keepCurrent) { document.getElementById('ans' + t).value = ""; document.getElementById('fb' + t).innerText = ""; btn.innerText = "CONTROLLA"; }
         document.getElementById('info' + t).innerText = `RESTANTI: ${dbs[t].deck.length + (dbs[t].current ? 1 : 0)}`;
-        document.getElementById('ans' + t).focus();
+        
+        // MODIFICA: Focus solo se non è iPhone
+        if (!isIPhone) {
+            document.getElementById('ans' + t).focus();
+        }
     }
 
     function checkGeneric(t) {
@@ -351,7 +360,11 @@
         document.getElementById('speakBtnC').setAttribute('onclick', `speakItem('${dbs.C.current.full.replace(/'/g, "\\'")}')`);
         if(!keepCurrent) { document.getElementById('ansC').value = ""; document.getElementById('fbC').innerText = ""; btn.innerText = "CONTROLLA"; }
         document.getElementById('infoC').innerText = `RESTANTI: ${dbs.C.deck.length + (dbs.C.current ? 1 : 0)}`;
-        document.getElementById('ansC').focus();
+        
+        // MODIFICA: Focus solo se non è iPhone
+        if (!isIPhone) {
+            document.getElementById('ansC').focus();
+        }
     }
 
     function checkVerb() {
@@ -495,63 +508,50 @@
             const full = document.getElementById('newFullC').value.trim();
             const it = document.getElementById('newItC').value.trim();
             if(!base) return;
-            if(!it || !full) {
-                const trans = await getBestTranslation(base);
-                if(!it) document.getElementById('newItC').value = trans;
-                if(!full) document.getElementById('newFullC').focus();
-                return;
-            }
-            dbs[t].data.push({ base, full, it, nextReview: 0, mode: 'en', lastAltState: 'en' });
-            document.getElementById('newBaseC').value = ''; document.getElementById('newFullC').value = ''; document.getElementById('newItC').value = '';
+            dbs.C.data.push({ base, full, it, nextReview: 0, mode: 'en' });
+            save('C'); buildDeck('C'); renderTable('C');
+            document.getElementById('newBaseC').value = "";
+            document.getElementById('newFullC').value = "";
+            document.getElementById('newItC').value = "";
         } else {
             const en = document.getElementById('newEn' + t).value.trim();
-            const itInput = document.getElementById('newIt' + t);
-            const itValue = itInput.value.trim();
+            const it = document.getElementById('newIt' + t).value.trim();
             if(!en) return;
-            if(!itValue) { const trans = await getBestTranslation(en); itInput.value = trans; return; }
-            dbs[t].data.push({ en, it: itValue, nextReview: 0, mode: 'en', lastAltState: 'en' });
-            document.getElementById('newEn' + t).value = ''; itInput.value = '';
+            dbs[t].data.push({ en, it, nextReview: 0, mode: 'en' });
+            save(t); buildDeck(t); renderTable(t);
+            document.getElementById('newEn' + t).value = "";
+            document.getElementById('newIt' + t).value = "";
         }
-        save(t); buildDeck(t); renderTable(t); showToast("Aggiunto!");
-    }
-
-    function forceAltRotation(t) {
-        dbs[t].data.forEach(w => { w.lastAltState = (w.lastAltState === 'it' ? 'en' : 'it'); });
-        save(t); buildDeck(t); renderTable(t); showToast("Lingue invertite!");
-    }
-    
-    function restartSession(t) {
-        forceAltRotation(t);
+        showToast("Aggiunto!");
     }
 
     function exportData() {
-        const fullData = { A: dbs.A.data, B: dbs.B.data, C: dbs.C.data };
-        const blob = new Blob([JSON.stringify(fullData)], { type: 'text/plain' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = "backup.txt"; a.click();
+        const allData = { A: dbs.A.data, B: dbs.B.data, C: dbs.C.data };
+        const blob = new Blob([JSON.stringify(allData)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `backup_flashcards_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
     }
 
     function importData(event) {
-        const file = event.target.files[0]; if (!file) return;
+        const file = event.target.files[0];
+        if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
-                const imp = JSON.parse(e.target.result);
-                if (confirm("Attenzione: questo sovrascriverà tutti i dati correnti. Sei sicuro di voler procedere?")) {
-                    if (imp.A) dbs.A.data = imp.A;
-                    if (imp.B) dbs.B.data = imp.B;
-                    if (imp.C) dbs.C.data = imp.C;
-                    ['A','B','C'].forEach(save);
-                    location.reload();
-                }
-            } catch (err) {
-                alert("Errore durante l'importazione. Assicurati che il file sia un backup valido.");
-            }
+                const imported = JSON.parse(e.target.result);
+                if(imported.A) { dbs.A.data = imported.A; save('A'); }
+                if(imported.B) { dbs.B.data = imported.B; save('B'); }
+                if(imported.C) { dbs.C.data = imported.C; save('C'); }
+                alert("Dati importati con successo!");
+                location.reload();
+            } catch(err) { alert("Errore nel file di backup."); }
         };
         reader.readAsText(file);
     }
-    
-    init();
+
+    window.onload = init;
 </script>
 </body>
 </html>
