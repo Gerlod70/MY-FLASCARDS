@@ -246,9 +246,17 @@
     }
 
     function restartSession(t) {
+        // Inverte lo stato di rotazione per tutte le parole in modalità ALT quando si ricomincia
+        dbs[t].data.forEach(w => {
+            if(w.mode === 'alt') {
+                w.lastAltState = (w.lastAltState === 'it') ? 'en' : 'it';
+            }
+        });
+        save(t);
         buildDeck(t);
-        dbs[t].current = null; // Forza pescaggio nuova carta
+        dbs[t].current = null;
         t === 'C' ? nextVerb() : nextCard(t);
+        renderTable(t);
     }
 
     function save(t) { localStorage.setItem(dbs[t].key, JSON.stringify(dbs[t].data)); }
@@ -318,7 +326,6 @@
     function checkGeneric(t) {
         const btn = document.getElementById('check' + t);
         if(btn.innerText === "PROSSIMO") { 
-            // Ruota stato per la prossima volta se in modalità Alt
             if(dbs[t].current && dbs[t].current.mode === 'alt') {
                 dbs[t].current.lastAltState = (dbs[t].current.lastAltState === 'it') ? 'en' : 'it';
                 save(t);
