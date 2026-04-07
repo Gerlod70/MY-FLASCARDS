@@ -21,9 +21,13 @@
         #sectionB .card { border-color: var(--purple); }
         #sectionC .card { border-color: var(--dark-blue); }
         .word-display { font-size: 34px; font-weight: 800; margin: 25px 0; display: flex; align-items: center; justify-content: center; gap: 15px; min-height: 60px; color: #1a1a1a; word-break: break-word; }
-        .game-input { width: 85%; max-width: 850px; padding: 18px; border: 2px solid #b2bec3; border-radius: 10px; font-size: 22px; text-align: center; outline: none; margin: 0 auto 10px auto; display: block; box-sizing: border-box; }
+        
+        /* Nuova struttura per Input + Bottone a fianco */
+        .input-group { display: flex; width: 85%; max-width: 850px; margin: 0 auto 10px auto; gap: 10px; }
+        .game-input { flex: 1; padding: 18px; border: 2px solid #b2bec3; border-radius: 10px; font-size: 22px; text-align: center; outline: none; box-sizing: border-box; }
+        .btn-check { width: 180px; padding: 0 15px; border-radius: 10px; font-weight: bold; color: white; background: #2d3436; font-size: 16px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
         .feedback-area { margin: 0 auto 20px auto; width: 85%; max-width: 850px; font-weight: 900; font-size: 26px; min-height: 45px; color: var(--deep-blue); line-height: 1.4; white-space: pre-line; text-align: left; }
-        .btn-check { width: 85%; max-width: 850px; padding: 18px; border-radius: 10px; font-weight: bold; color: white; background: #2d3436; font-size: 18px; text-transform: uppercase; margin: 0 auto 15px auto; display: block; }
         .btn-restart { background: #27ae60; color: white; padding: 15px 30px; border-radius: 10px; font-size: 20px; font-weight: bold; margin-top: 20px; display: none; }
         .game-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 85%; max-width: 850px; margin: 0 auto; }
         .btn-act { padding: 14px; border-radius: 8px; color: white; font-weight: bold; font-size: 14px; text-transform: uppercase; }
@@ -65,17 +69,10 @@
         select { padding: 6px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
         @keyframes fadein { from {bottom: 0; opacity:0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-        @media only screen and (max-width: 950px) and (orientation: landscape) {
-            table { min-width: 100%; }
-            .col-main { width: 30% !important; font-size: 12px; }
-            .col-trans { width: 50% !important; font-size: 12px; }
-            th, td { padding: 8px 2px; }
-        }
-        @media (max-width: 1250px) {
-            body { padding: 0 10px; }
-            .game-input, .btn-check, .feedback-area, .game-controls { width: 100%; max-width: none; }
-        }
+        
         @media (max-width: 768px) {
+            .input-group { width: 100%; flex-direction: column; }
+            .btn-check { width: 100%; padding: 15px; }
             .card { padding: 15px; }
             .add-container { flex-direction: column; }
             .btn-tool { flex: 1; text-align: center; }
@@ -106,9 +103,11 @@
             </div>
             <div class="word-display"><span id="displayA">...</span><button onclick="speakItem(dbs.A.current.en)" style="background:none; font-size:30px;">🔊</button></div>
             <div id="gameA">
-                <input type="text" id="ansA" class="game-input" placeholder="Traduci..." autocomplete="off">
+                <div class="input-group">
+                    <input type="text" id="ansA" class="game-input" placeholder="Traduci..." autocomplete="off">
+                    <button id="checkA" class="btn-check" onclick="checkGeneric('A')">CONTROLLA</button>
+                </div>
                 <div id="fbA" class="feedback-area"></div>
-                <button id="checkA" class="btn-check" onclick="checkGeneric('A')">CONTROLLA</button>
                 <div class="game-controls">
                     <button class="btn-act btn-edit" onclick="manualEdit('A')">Modifica</button>
                     <button class="btn-act btn-postpone" onclick="togglePause('A')">Posticipa</button>
@@ -140,9 +139,11 @@
             </div>
             <div class="word-display"><span id="displayB">...</span><button onclick="speakItem(dbs.B.current.en)" style="background:none; font-size:30px;">🔊</button></div>
             <div id="gameB">
-                <input type="text" id="ansB" class="game-input" placeholder="Traduci..." autocomplete="off">
+                <div class="input-group">
+                    <input type="text" id="ansB" class="game-input" placeholder="Traduci..." autocomplete="off">
+                    <button id="checkB" class="btn-check" onclick="checkGeneric('B')" style="background:var(--purple)">CONTROLLA</button>
+                </div>
                 <div id="fbB" class="feedback-area"></div>
-                <button id="checkB" class="btn-check" onclick="checkGeneric('B')" style="background:var(--purple)">CONTROLLA</button>
                 <div class="game-controls">
                     <button class="btn-act btn-edit" onclick="manualEdit('B')">Modifica</button>
                     <button class="btn-act btn-postpone" onclick="togglePause('B')">Posticipa</button>
@@ -174,9 +175,11 @@
             </div>
             <div class="word-display"><span id="displayC">...</span><button id="speakBtnC" onclick="speakItem(dbs.C.current.full)" style="background:none; font-size:30px;">🔊</button></div>
             <div id="gameC">
-                <input type="text" id="ansC" class="game-input" placeholder="Paradigma o Traduzione..." autocomplete="off">
+                <div class="input-group">
+                    <input type="text" id="ansC" class="game-input" placeholder="Paradigma o Traduzione..." autocomplete="off">
+                    <button id="checkC" class="btn-check" onclick="checkVerb()" style="background:var(--dark-blue)">CONTROLLA</button>
+                </div>
                 <div id="fbC" class="feedback-area"></div>
-                <button id="checkC" class="btn-check" onclick="checkVerb()" style="background:var(--dark-blue)">CONTROLLA</button>
                 <div class="game-controls">
                     <button class="btn-act btn-edit" onclick="manualEdit('C')">Modifica</button>
                     <button class="btn-act btn-postpone" onclick="togglePause('C')">Posticipa</button>
@@ -246,7 +249,6 @@
     }
 
     function restartSession(t) {
-        // Inverte lo stato di rotazione per tutte le parole in modalità ALT quando si ricomincia
         dbs[t].data.forEach(w => {
             if(w.mode === 'alt') {
                 w.lastAltState = (w.lastAltState === 'it') ? 'en' : 'it';
