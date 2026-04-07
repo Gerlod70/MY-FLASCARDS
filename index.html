@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flashcards Pro - V51.9.3</title>
+    <title>Flashcards Pro - V51.9.4</title>
     <style>
         :root { --blue: #007bff; --purple: #6f42c1; --dark-blue: #2c3e50; --bg: #f4f7f9; --text-dark: #2d3436; --deep-blue: #0984e3; --light-gray: #f1f2f6; --red: #e74c3c; --green: #27ae60; --orange: #f39c12; --teal: #00cec9; --grey: #636e72; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; color: var(--text-dark); overflow-x: hidden; width: 100vw; }
@@ -21,19 +21,18 @@
         #sectionB .card { border-color: var(--purple); }
         #sectionC .card { border-color: var(--dark-blue); }
         
-        /* Modifica: Allineamento a sinistra della parola principale */
         .word-display { 
             font-size: 34px; 
             font-weight: 800; 
             margin: 25px auto; 
             display: flex; 
             align-items: center; 
-            justify-content: flex-start; /* Allineato a sinistra */
+            justify-content: flex-start;
             gap: 15px; 
             min-height: 60px; 
             color: #1a1a1a; 
             word-break: break-word;
-            width: 85%; /* Stessa larghezza dell'input group */
+            width: 85%;
             max-width: 850px;
             text-align: left;
         }
@@ -44,7 +43,6 @@
 
         .feedback-area { margin: 0 auto 20px auto; width: 85%; max-width: 850px; font-weight: 900; font-size: 26px; min-height: 45px; color: var(--deep-blue); line-height: 1.4; white-space: pre-line; text-align: left; }
         
-        /* Modal per Modifica Grande */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 800px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .modal-content h3 { margin-top: 0; color: var(--dark-blue); }
@@ -99,7 +97,7 @@
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
         
         @media (max-width: 768px) {
-            .word-display { justify-content: center; text-align: center; } /* Su mobile resta al centro */
+            .word-display { justify-content: center; text-align: center; }
             .input-group { width: 100%; flex-direction: column; }
             .btn-check { width: 100%; padding: 15px; }
             .card { padding: 15px; }
@@ -271,14 +269,11 @@
 
     let currentEditState = { t: null, i: null };
 
-    // --- Logica Modale ---
     function manualEdit(t, i) {
         let item = (i === undefined) ? dbs[t].current : dbs[t].data[i];
         if (!item) return;
-        
         currentEditState = { t, i };
         document.getElementById('editModal').style.display = 'flex';
-        
         if (t === 'C') {
             document.getElementById('fieldsA').style.display = 'none';
             document.getElementById('fieldsC').style.display = 'block';
@@ -296,7 +291,6 @@
     function saveModal() {
         const { t, i } = currentEditState;
         let item = (i === undefined) ? dbs[t].current : dbs[t].data[i];
-
         if (t === 'C') {
             item.base = document.getElementById('editBaseC').value.trim();
             item.full = document.getElementById('editFullC').value.trim();
@@ -307,13 +301,11 @@
             item.it = document.getElementById('editIt').value.trim();
             if (i === undefined) nextCard(t, true);
         }
-        
         save(t); renderTable(t); closeModal(); showToast("Salvato!");
     }
 
     function closeModal() { document.getElementById('editModal').style.display = 'none'; }
 
-    // --- Funzioni Core ---
     async function translateText(text, from, to) {
         if(!text || text.trim() === "") return "";
         try {
@@ -412,8 +404,17 @@
     }
 
     function forceAltRotation(t) {
+        // Salva la posizione dello scroll prima di aggiornare
+        const currentScroll = window.scrollY;
+        
         dbs[t].data.forEach(w => { if(w.mode === 'alt') w.lastAltState = (w.lastAltState === 'it') ? 'en' : 'it'; });
-        save(t); if(t === 'C') nextVerb(true); else nextCard(t, true); renderTable(t); showToast("Rotazione Alt completata!");
+        save(t); 
+        if(t === 'C') nextVerb(true); else nextCard(t, true); 
+        renderTable(t); 
+        
+        // Ripristina la posizione dello scroll dopo il rendering
+        window.scrollTo(0, currentScroll);
+        showToast("Rotazione Alt completata!");
     }
 
     function nextCard(t, keepCurrent = false) {
@@ -509,7 +510,23 @@
 
     function updateMode(t, idx, val) { dbs[t].data[idx].mode = val; save(t); if(dbs[t].current === dbs[t].data[idx]) { if(t === 'C') nextVerb(true); else nextCard(t, true); } renderTable(t); }
 
-    function refreshList(t) { document.getElementById('search' + t).value = ""; renderTable(t); showToast("Lista aggiornata!"); }
+    function refreshList(t) { 
+        // Pulisci il campo ricerca della sezione
+        document.getElementById('search' + t).value = ""; 
+        
+        // Pulisci i campi per aggiungere nuove flashcards
+        if (t === 'C') {
+            document.getElementById('newBaseC').value = "";
+            document.getElementById('newFullC').value = "";
+            document.getElementById('newItC').value = "";
+        } else {
+            document.getElementById('newEn' + t).value = "";
+            document.getElementById('newIt' + t).value = "";
+        }
+        
+        renderTable(t); 
+        showToast("Campi puliti e lista aggiornata!"); 
+    }
 
     function postponeAll(t) { if(confirm("Posticipare TUTTI?")) { const future = Date.now() + 2592000000; dbs[t].data.forEach(w => w.nextReview = future); save(t); buildDeck(t); renderTable(t); t === 'C' ? nextVerb() : nextCard(t); } }
 
