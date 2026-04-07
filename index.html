@@ -20,13 +20,17 @@
         #sectionA .card { border-color: var(--blue); }
         #sectionB .card { border-color: var(--purple); }
         #sectionC .card { border-color: var(--dark-blue); }
-        .word-display { font-size: 34px; font-weight: 800; margin: 25px 0; display: flex; align-items: center; justify-content: center; gap: 15px; min-height: 60px; color: #1a1a1a; word-break: break-word; }
+        
+        /* Modifica per centrare la parola principale */
+        .word-display { font-size: 34px; font-weight: 800; margin: 25px auto; display: flex; align-items: center; justify-content: center; gap: 15px; min-height: 60px; color: #1a1a1a; word-break: break-word; width: 85%; max-width: 850px; text-align: center; }
         
         .input-group { display: flex; width: 85%; max-width: 850px; margin: 0 auto 10px auto; gap: 10px; }
         .game-input { flex: 1; padding: 18px; border: 2px solid #b2bec3; border-radius: 10px; font-size: 22px; text-align: center; outline: none; box-sizing: border-box; }
         .btn-check { width: 180px; padding: 0 15px; border-radius: 10px; font-weight: bold; color: white; background: #2d3436; font-size: 16px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .feedback-area { margin: 0 auto 20px auto; width: 85%; max-width: 850px; font-weight: 900; font-size: 26px; min-height: 45px; color: var(--deep-blue); line-height: 1.4; white-space: pre-line; text-align: left; }
+        /* Modifica per centrare la traduzione (feedback) */
+        .feedback-area { margin: 0 auto 20px auto; width: 85%; max-width: 850px; font-weight: 900; font-size: 26px; min-height: 45px; color: var(--deep-blue); line-height: 1.4; white-space: pre-line; text-align: center; }
+        
         .btn-restart { background: #27ae60; color: white; padding: 15px 30px; border-radius: 10px; font-size: 20px; font-weight: bold; margin-top: 20px; display: none; }
         .game-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 85%; max-width: 850px; margin: 0 auto; }
         .btn-act { padding: 14px; border-radius: 8px; color: white; font-weight: bold; font-size: 14px; text-transform: uppercase; }
@@ -220,7 +224,6 @@
         C: { key: 'VERBI_PRO_STABLE_V15', data: [], deck: [], current: null }
     };
 
-    // --- LOGICA TRADUZIONE OTTIMIZZATA ---
     async function translateText(text, from, to) {
         if(!text || text.trim() === "") return "";
         try {
@@ -237,13 +240,11 @@
         if (isIPhone || e.key !== 'Enter') return;
         const enIn = document.getElementById('newEn' + t), itIn = document.getElementById('newIt' + t);
         
-        // Se entrambi sono pieni, l'invio aggiunge direttamente
         if(enIn.value && itIn.value) {
             addNewItem(t);
             return;
         }
 
-        // Se uno è vuoto, traduce
         if (sourceLang === 'en' && enIn.value && !itIn.value) {
             itIn.placeholder = "Traduzione in corso...";
             const result = await translateText(enIn.value, 'en', 'it');
@@ -285,7 +286,6 @@
             addNewItem(t);
         }
     }
-    // -------------------------
 
     function formatText(text) {
         if(!text) return "";
