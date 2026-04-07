@@ -530,10 +530,8 @@
         w.nextReview = (w.nextReview > Date.now()) ? 0 : Date.now() + 2592000000; 
         save(t); 
         if(i===undefined) {
-            // Se stiamo agendo dal gioco, passiamo true per non ricostruire il deck
             t === 'C' ? nextVerb(true) : nextCard(t, true); 
         } else {
-            // Se agiamo dalla lista, aggiorniamo il mazzo e ricarichiamo la tabella
             buildDeck(t); 
             renderTable(t);
         }
@@ -546,10 +544,8 @@
                 dbs[t].data.splice(idx,1); 
                 save(t); 
                 if(i===undefined) {
-                    // Se stiamo agendo dal gioco, passiamo true per non ricostruire il deck
                     t === 'C' ? nextVerb(true) : nextCard(t, true); 
                 } else {
-                    // Se agiamo dalla lista, aggiorniamo il mazzo e ricarichiamo la tabella
                     buildDeck(t); 
                     renderTable(t);
                 }
@@ -569,11 +565,15 @@
     async function addNewItem(t) {
         if (t === 'C') {
             const base = document.getElementById('newBaseC').value.trim(), full = document.getElementById('newFullC').value.trim(), it = document.getElementById('newItC').value.trim();
-            if(!base) return; dbs.C.data.push({ base, full, it, nextReview: 0, mode: 'en', lastAltState: 'en' }); save('C'); buildDeck('C'); renderTable('C');
+            if(!base) return; 
+            dbs.C.data.push({ base, full, it, nextReview: 0, mode: 'alt', lastAltState: 'en' }); 
+            save('C'); buildDeck('C'); renderTable('C');
             document.getElementById('newBaseC').value = ""; document.getElementById('newFullC').value = ""; document.getElementById('newItC').value = "";
         } else {
             const en = document.getElementById('newEn' + t).value.trim(), it = document.getElementById('newIt' + t).value.trim();
-            if(!en || !it) return; dbs[t].data.push({ en, it, nextReview: 0, mode: 'en', lastAltState: 'en' }); save(t); buildDeck(t); renderTable(t);
+            if(!en || !it) return; 
+            dbs[t].data.push({ en, it, nextReview: 0, mode: 'alt', lastAltState: 'en' }); 
+            save(t); buildDeck(t); renderTable(t);
             document.getElementById('newEn' + t).value = ""; document.getElementById('newIt' + t).value = ""; if (isIPhone) handleIPhoneBtn(t);
         }
         showToast("Aggiunto!");
