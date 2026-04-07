@@ -230,7 +230,7 @@
 <script>
     // COSTANTE PER RILEVARE IPHONE
     const isIPhone = /iPhone|iPod|iPad/i.test(navigator.userAgent);
-
+    
     let dbs = {
         A: { key: 'flash_v_pc_pro_DATABASE_A', data: [], deck: [], current: null },
         B: { key: 'flash_v_pc_pro_DATABASE_B', data: [], deck: [], current: null },
@@ -280,6 +280,15 @@
         dbs[t].deck = dbs[t].data.filter(w => !w.nextReview || now > w.nextReview).sort(() => Math.random() - 0.5);
     }
 
+    function restartSession(t) {
+        buildDeck(t);
+        if (t === 'C') {
+            nextVerb();
+        } else {
+            nextCard(t);
+        }
+    }
+
     function save(t) { localStorage.setItem(dbs[t].key, JSON.stringify(dbs[t].data)); }
 
     function switchTab(t) {
@@ -316,7 +325,6 @@
         if(selectedMode === 'en') showEn = true;
         else if(selectedMode === 'it') showEn = false;
         else showEn = (dbs[t].current.lastAltState !== 'it');
-
         document.getElementById('display' + t).innerText = showEn ? dbs[t].current.en : dbs[t].current.it;
         dbs[t].current._target = showEn ? dbs[t].current.it : dbs[t].current.en;
         if(!keepCurrent) { document.getElementById('ans' + t).value = ""; document.getElementById('fb' + t).innerText = ""; btn.innerText = "CONTROLLA"; }
@@ -371,13 +379,11 @@
         const btn = document.getElementById('checkC');
         if(btn.innerText === "PROSSIMO") { nextVerb(); return; }
         const paradigm = formatText(dbs.C.current.full);
-        
         const translation = formatText(dbs.C.current.it).replace(/, /g, ',\n');
         
         const base = formatText(dbs.C.current.base);
         const selectedMode = document.getElementById('gameModeC').value;
         const showingIta = (selectedMode === 'it') || (selectedMode === 'alt' && dbs.C.current.lastAltState === 'it');
-
         if(showingIta) { document.getElementById('fbC').innerText = base + " - " + paradigm; } 
         else { document.getElementById('fbC').innerText = paradigm + "\n(" + translation + ")"; }
         btn.innerText = "PROSSIMO";
@@ -393,7 +399,7 @@
             if (match) {
                 const isP = w.nextReview > now, mType = w.mode || 'en';
                 let curMain, curTrans, speakText;
-                
+               
                 if (t === 'C') {
                     speakText = w.full;
                     const horizSpacer = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;➔&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
@@ -404,7 +410,7 @@
                         curTrans = showEn ? `${w.full}${horizSpacer}[ ${w.it} ]` : w.full;
                     } else { 
                         curMain = w.base; 
-                        curTrans = `${w.full}${horizSpacer}[ ${w.it} ]`; 
+                        curTrans = `${w.full}${horizSpacer}[ ${w.it} ]`;
                     }
                 } else {
                     speakText = w.en;
@@ -418,7 +424,6 @@
                 }
                 const row = table.insertRow();
                 let mainContent = isP ? curMain + " (P)" : `<span class="list-active-highlight">${curMain}</span>`;
-
                 row.innerHTML = `<td class="col-idx">${idx+1}</td>
                 <td class="col-main">${mainContent}</td>
                 <td class="col-trans"><span class="hidden-text" onclick="togglePause('${t}',${idx})">${curTrans}</span></td>
@@ -432,7 +437,8 @@
     }
 
     function updateMode(t, idx, val) { 
-        dbs[t].data[idx].mode = val; save(t); 
+        dbs[t].data[idx].mode = val;
+        save(t); 
         if(dbs[t].current === dbs[t].data[idx]) { if(t === 'C') nextVerb(true); else nextCard(t, true); }
         renderTable(t); 
     }
@@ -459,23 +465,24 @@
     }
     
     function togglePause(t, i) { 
-        let w = (i===undefined)?dbs[t].current:dbs[t].data[i]; 
+        let w = (i===undefined)?dbs[t].current:dbs[t].data[i];
         if(!w) return; 
         w.nextReview = (w.nextReview > Date.now()) ? 0 : Date.now() + 2592000000; 
         save(t); buildDeck(t); renderTable(t); 
-        if(i===undefined) t==='C'?nextVerb():nextCard(t); 
+        if(i===undefined) t==='C'?nextVerb():nextCard(t);
     }
     
     function manualDelete(t, i) { 
         if(confirm("Eliminare?")) { 
-            const idx = (i===undefined)?dbs[t].data.indexOf(dbs[t].current):i; 
+            const idx = (i===undefined)?dbs[t].data.indexOf(dbs[t].current):i;
             dbs[t].data.splice(idx,1); save(t); buildDeck(t); renderTable(t); 
             if(i===undefined) t==='C'?nextVerb():nextCard(t); 
         } 
     }
 
     function manualEdit(t, i) { 
-        let item; const isFromCard = (i === undefined);
+        let item;
+        const isFromCard = (i === undefined);
         if (isFromCard) { item = dbs[t].current; if (!item) return showToast("Nessuna parola attiva!"); } else { item = dbs[t].data[i]; }
 
         if (t === 'C') {
@@ -488,7 +495,8 @@
             const v2 = prompt("Traduzione Italiana:", item.it);
             if (v1 && v2) { item.en = v1; item.it = v2; if (isFromCard) nextCard(t, true); }
         }
-        save(t); renderTable(t); showToast("Modifica salvata!");
+        save(t);
+        renderTable(t); showToast("Modifica salvata!");
     }
 
     document.addEventListener('keydown', (e) => {
@@ -498,6 +506,7 @@
             const activeSection = document.querySelector('.db-section.active');
             if (!activeSection) return;
             const currentTabId = activeSection.id.replace('section', '');
+     
             if (currentTabId === 'C') checkVerb(); else checkGeneric(currentTabId);
         }
     });
@@ -509,7 +518,8 @@
             const it = document.getElementById('newItC').value.trim();
             if(!base) return;
             dbs.C.data.push({ base, full, it, nextReview: 0, mode: 'en' });
-            save('C'); buildDeck('C'); renderTable('C');
+            save('C');
+            buildDeck('C'); renderTable('C');
             document.getElementById('newBaseC').value = "";
             document.getElementById('newFullC').value = "";
             document.getElementById('newItC').value = "";
@@ -530,7 +540,8 @@
         const blob = new Blob([JSON.stringify(allData)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = `backup_flashcards_${new Date().toISOString().slice(0,10)}.json`;
+        a.href = url;
+        a.download = `backup_flashcards_${new Date().toISOString().slice(0,10)}.json`;
         a.click();
     }
 
