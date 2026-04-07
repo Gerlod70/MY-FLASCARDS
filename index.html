@@ -22,7 +22,6 @@
         #sectionC .card { border-color: var(--dark-blue); }
         .word-display { font-size: 34px; font-weight: 800; margin: 25px 0; display: flex; align-items: center; justify-content: center; gap: 15px; min-height: 60px; color: #1a1a1a; word-break: break-word; }
         
-        /* Nuova struttura per Input + Bottone a fianco */
         .input-group { display: flex; width: 85%; max-width: 850px; margin: 0 auto 10px auto; gap: 10px; }
         .game-input { flex: 1; padding: 18px; border: 2px solid #b2bec3; border-radius: 10px; font-size: 22px; text-align: center; outline: none; box-sizing: border-box; }
         .btn-check { width: 180px; padding: 0 15px; border-radius: 10px; font-weight: bold; color: white; background: #2d3436; font-size: 16px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -116,7 +115,11 @@
             </div>
             <button id="restartA" class="btn-restart" onclick="restartSession('A')">RICOMINCIA SESSIONE 🔄</button>
         </div>
-        <div class="add-container"><input type="text" id="newEnA" class="add-input" placeholder="Parola Inglese" onkeydown="if(event.key==='Enter') addNewItem('A')"><input type="text" id="newItA" class="add-input" placeholder="Traduzione Italiana" onkeydown="if(event.key==='Enter') addNewItem('A')"><button class="btn-add" onclick="addNewItem('A')">AGGIUNGI +</button></div>
+        <div class="add-container">
+            <input type="text" id="newEnA" class="add-input" placeholder="Parola Inglese" oninput="handleIPhoneBtn('A')" onkeydown="handlePcTranslate(event, 'A', 'en')">
+            <input type="text" id="newItA" class="add-input" placeholder="Traduzione Italiana" oninput="handleIPhoneBtn('A')" onkeydown="handlePcTranslate(event, 'A', 'it')">
+            <button id="btnAddA" class="btn-add" onclick="smartAdd('A')">AGGIUNGI +</button>
+        </div>
         <div class="search-container">
             <input type="text" id="searchA" class="search-input" placeholder="Cerca..." oninput="renderTable('A')">
             <button class="btn-tool" style="background:var(--grey)" onclick="refreshList('A')">🔄 AGGIORNA</button>
@@ -152,7 +155,11 @@
             </div>
             <button id="restartB" class="btn-restart" onclick="restartSession('B')">RICOMINCIA SESSIONE 🔄</button>
         </div>
-        <div class="add-container"><input type="text" id="newEnB" class="add-input" placeholder="Testo Inglese" onkeydown="if(event.key==='Enter') addNewItem('B')"><input type="text" id="newItB" class="add-input" placeholder="Traduzione Italiana" onkeydown="if(event.key==='Enter') addNewItem('B')"><button class="btn-add" style="background:var(--purple)" onclick="addNewItem('B')">AGGIUNGI +</button></div>
+        <div class="add-container">
+            <input type="text" id="newEnB" class="add-input" placeholder="Testo Inglese" oninput="handleIPhoneBtn('B')" onkeydown="handlePcTranslate(event, 'B', 'en')">
+            <input type="text" id="newItB" class="add-input" placeholder="Traduzione Italiana" oninput="handleIPhoneBtn('B')" onkeydown="handlePcTranslate(event, 'B', 'it')">
+            <button id="btnAddB" class="btn-add" style="background:var(--purple)" onclick="smartAdd('B')">AGGIUNGI +</button>
+        </div>
         <div class="search-container">
             <input type="text" id="searchB" class="search-input" placeholder="Cerca..." oninput="renderTable('B')">
             <button class="btn-tool" style="background:var(--grey)" onclick="refreshList('B')">🔄 AGGIORNA</button>
@@ -212,6 +219,52 @@
         B: { key: 'flash_v_pc_pro_DATABASE_B', data: [], deck: [], current: null },
         C: { key: 'VERBI_PRO_STABLE_V15', data: [], deck: [], current: null }
     };
+
+    // --- LOGICA TRADUZIONE ---
+    async function translateText(text, from, to) {
+        if(!text) return "";
+        try {
+            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
+            const json = await res.json();
+            return json[0][0][0];
+        } catch (e) { return ""; }
+    }
+
+    async function handlePcTranslate(e, t, sourceLang) {
+        if (isIPhone || e.key !== 'Enter') return;
+        const enIn = document.getElementById('newEn' + t), itIn = document.getElementById('newIt' + t);
+        if (sourceLang === 'en' && enIn.value && !itIn.value) {
+            itIn.value = "Traduzione in corso...";
+            itIn.value = await translateText(enIn.value, 'en', 'it');
+        } else if (sourceLang === 'it' && itIn.value && !enIn.value) {
+            enIn.value = "Translating...";
+            enIn.value = await translateText(itIn.value, 'it', 'en');
+        }
+    }
+
+    function handleIPhoneBtn(t) {
+        if (!isIPhone) return;
+        const btn = document.getElementById('btnAdd' + t), enVal = document.getElementById('newEn' + t).value, itVal = document.getElementById('newIt' + t).value;
+        if ((enVal && !itVal) || (itVal && !enVal)) {
+            btn.innerText = "TRADUCI";
+            btn.style.background = "#3498db";
+        } else {
+            btn.innerText = "AGGIUNGI +";
+            btn.style.background = (t === 'A') ? "#27ae60" : "#6f42c1";
+        }
+    }
+
+    async function smartAdd(t) {
+        const btn = document.getElementById('btnAdd' + t), enIn = document.getElementById('newEn' + t), itIn = document.getElementById('newIt' + t);
+        if (isIPhone && btn.innerText === "TRADUCI") {
+            if (enIn.value && !itIn.value) itIn.value = await translateText(enIn.value, 'en', 'it');
+            else if (itIn.value && !enIn.value) enIn.value = await translateText(itIn.value, 'it', 'en');
+            handleIPhoneBtn(t);
+        } else {
+            addNewItem(t);
+        }
+    }
+    // -------------------------
 
     function formatText(text) {
         if(!text) return "";
@@ -514,10 +567,11 @@
             document.getElementById('newBaseC').value = ""; document.getElementById('newFullC').value = ""; document.getElementById('newItC').value = "";
         } else {
             const en = document.getElementById('newEn' + t).value.trim(), it = document.getElementById('newIt' + t).value.trim();
-            if(!en) return;
+            if(!en || !it) return;
             dbs[t].data.push({ en, it, nextReview: 0, mode: 'en', lastAltState: 'en' });
             save(t); buildDeck(t); renderTable(t);
             document.getElementById('newEn' + t).value = ""; document.getElementById('newIt' + t).value = "";
+            if (isIPhone) handleIPhoneBtn(t);
         }
         showToast("Aggiunto!");
     }
