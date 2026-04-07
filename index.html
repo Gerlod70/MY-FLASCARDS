@@ -404,15 +404,11 @@
     }
 
     function forceAltRotation(t) {
-        // Salva la posizione dello scroll prima di aggiornare
         const currentScroll = window.scrollY;
-        
         dbs[t].data.forEach(w => { if(w.mode === 'alt') w.lastAltState = (w.lastAltState === 'it') ? 'en' : 'it'; });
         save(t); 
         if(t === 'C') nextVerb(true); else nextCard(t, true); 
         renderTable(t); 
-        
-        // Ripristina la posizione dello scroll dopo il rendering
         window.scrollTo(0, currentScroll);
         showToast("Rotazione Alt completata!");
     }
@@ -511,10 +507,7 @@
     function updateMode(t, idx, val) { dbs[t].data[idx].mode = val; save(t); if(dbs[t].current === dbs[t].data[idx]) { if(t === 'C') nextVerb(true); else nextCard(t, true); } renderTable(t); }
 
     function refreshList(t) { 
-        // Pulisci il campo ricerca della sezione
         document.getElementById('search' + t).value = ""; 
-        
-        // Pulisci i campi per aggiungere nuove flashcards
         if (t === 'C') {
             document.getElementById('newBaseC').value = "";
             document.getElementById('newFullC').value = "";
@@ -523,7 +516,6 @@
             document.getElementById('newEn' + t).value = "";
             document.getElementById('newIt' + t).value = "";
         }
-        
         renderTable(t); 
         showToast("Campi puliti e lista aggiornata!"); 
     }
@@ -532,9 +524,38 @@
 
     function reactivateAll(t) { if(confirm("Riattivare TUTTI?")) { dbs[t].data.forEach(w => w.nextReview = 0); save(t); buildDeck(t); renderTable(t); t === 'C' ? nextVerb() : nextCard(t); } }
     
-    function togglePause(t, i) { let w = (i===undefined)?dbs[t].current:dbs[t].data[i]; if(!w) return; w.nextReview = (w.nextReview > Date.now()) ? 0 : Date.now() + 2592000000; save(t); buildDeck(t); renderTable(t); if(i===undefined) t==='C'?nextVerb():nextCard(t); }
+    function togglePause(t, i) { 
+        let w = (i===undefined)?dbs[t].current:dbs[t].data[i]; 
+        if(!w) return; 
+        w.nextReview = (w.nextReview > Date.now()) ? 0 : Date.now() + 2592000000; 
+        save(t); 
+        if(i===undefined) {
+            // Se stiamo agendo dal gioco, passiamo true per non ricostruire il deck
+            t === 'C' ? nextVerb(true) : nextCard(t, true); 
+        } else {
+            // Se agiamo dalla lista, aggiorniamo il mazzo e ricarichiamo la tabella
+            buildDeck(t); 
+            renderTable(t);
+        }
+    }
     
-    function manualDelete(t, i) { if(confirm("Eliminare?")) { const idx = (i===undefined)?dbs[t].data.indexOf(dbs[t].current):i; dbs[t].data.splice(idx,1); save(t); buildDeck(t); renderTable(t); if(i===undefined) t==='C'?nextVerb():nextCard(t); } }
+    function manualDelete(t, i) { 
+        if(confirm("Eliminare?")) { 
+            const idx = (i===undefined)?dbs[t].data.indexOf(dbs[t].current):i; 
+            if(idx > -1) {
+                dbs[t].data.splice(idx,1); 
+                save(t); 
+                if(i===undefined) {
+                    // Se stiamo agendo dal gioco, passiamo true per non ricostruire il deck
+                    t === 'C' ? nextVerb(true) : nextCard(t, true); 
+                } else {
+                    // Se agiamo dalla lista, aggiorniamo il mazzo e ricarichiamo la tabella
+                    buildDeck(t); 
+                    renderTable(t);
+                }
+            }
+        } 
+    }
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && document.getElementById('editModal').style.display !== 'flex') {
