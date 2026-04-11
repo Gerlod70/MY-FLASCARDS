@@ -58,7 +58,7 @@
         th { background: #2d3436; padding: 15px 5px; font-size: 11px; color: white; text-transform: uppercase; text-align: center; position: sticky; top: 0; z-index: 10; }
         td { padding: 12px 4px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; vertical-align: middle; }
         .col-idx { width: 40px; }
-        .col-main { width: 230px; text-align: left !important; padding-left: 20px !important; font-weight: 700; word-break: break-word; }
+        .col-main { width: 230px; text-align: left !important; padding-left: 20px !important; font-weight: 700; word-break: break-word; cursor: pointer; user-select: none; }
         .col-mode { width: 100px; }
         .col-trans { width: 350px; text-align: left !important; }
         .list-mode-select { width: 100%; padding: 5px; border-radius: 4px; font-size: 12px; border: 1px solid #ccc; cursor: pointer; }
@@ -517,7 +517,7 @@
             const item = (i === undefined) ? dbs[t].current : dbs[t].data[i];
             item.paused = !item.paused; save(t);
             if (item.paused) dbs[t].deck = dbs[t].deck.filter(x => x !== item);
-            else dbs[t].deck.push(item);
+            else if (!dbs[t].deck.includes(item)) dbs[t].deck.push(item);
             if (i === undefined) (t === 'C') ? nextVerb() : nextCard(t);
             renderTable(t); showToast(item.paused ? "Posticipato" : "Riattivato");
         }
@@ -544,7 +544,7 @@
                     const itemMode = item.mode || 'alt';
                     html += `<tr style="${item.paused ? 'opacity:0.5; background:#f9f9f9;' : ''}">
                         <td>${i + 1}</td>
-                        <td class="col-main">${isCurrent ? '<span class="list-active-highlight">' + (t === 'C' ? item.base : item.en) + '</span>' : (t === 'C' ? item.base : item.en)}</td>
+                        <td class="col-main" onclick="togglePause('${t}', ${i})">${isCurrent ? '<span class="list-active-highlight">' + (t === 'C' ? item.base : item.en) + '</span>' : (t === 'C' ? item.base : item.en)}</td>
                         <td class="col-mode">
                             <select class="list-mode-select" onchange="updateItemMode('${t}', ${i}, this.value)">
                                 <option value="en" ${itemMode==='en'?'selected':''}>Eng</option>
@@ -552,7 +552,7 @@
                                 <option value="alt" ${itemMode==='alt'?'selected':''}>Alt</option>
                             </select>
                         </td>
-                        <td class="col-trans"><div class="hidden-text" onclick="speakItem('${t === 'C' ? item.full : item.en}')">${t === 'C' ? item.full + ' | ' + item.it : item.it}</div></td>
+                        <td class="col-trans"><div class="hidden-text" onclick="event.stopPropagation(); speakItem('${t === 'C' ? item.full : item.en}')">${t === 'C' ? item.full + ' | ' + item.it : item.it}</div></td>
                         <td>
                             <button class="list-btn btn-edit-list" onclick="manualEdit('${t}', ${i})">M</button>
                             <button class="list-btn ${item.paused ? 'btn-reactivate-list' : 'btn-postpone-list'}" onclick="togglePause('${t}', ${i})">${item.paused ? 'R' : 'P'}</button>
