@@ -57,12 +57,16 @@
         table { width: 100%; min-width: 1000px; border-collapse: collapse; table-layout: fixed; }
         th { background: #2d3436; padding: 15px 5px; font-size: 11px; color: white; text-transform: uppercase; text-align: center; position: sticky; top: 0; z-index: 10; }
         td { padding: 12px 4px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; vertical-align: middle; }
+        
+        /* Stile per riga attiva */
+        .row-active { background-color: #e3f2fd; }
+        
         .col-idx { width: 40px; }
         .col-main { width: 230px; text-align: left !important; padding-left: 20px !important; font-weight: 700; word-break: break-word; cursor: pointer; user-select: none; }
         .col-mode { width: 100px; }
         .col-trans { width: 350px; text-align: left !important; }
         .list-mode-select { width: 100%; padding: 5px; border-radius: 4px; font-size: 12px; border: 1px solid #ccc; cursor: pointer; }
-        .list-active-highlight { background-color: #e3f2fd; padding: 4px 8px; border-radius: 6px; display: inline-block; }
+        .list-active-highlight { background-color: #bbdefb; padding: 4px 8px; border-radius: 6px; display: inline-block; border: 1px solid #90caf9; }
         .list-btn { padding: 8px 12px; border-radius: 6px; font-weight: bold; color: white; min-width: 40px; }
         .btn-edit-list { background: var(--grey); }
         .btn-postpone-list { background: var(--orange); }
@@ -542,7 +546,7 @@
                 if (textMain.includes(search) || textSub.includes(search)) {
                     const isCurrent = (item === dbs[t].current);
                     const itemMode = item.mode || 'alt';
-                    html += `<tr style="${item.paused ? 'opacity:0.5; background:#f9f9f9;' : ''}">
+                    html += `<tr class="${!item.paused ? 'row-active' : ''}" style="${item.paused ? 'opacity:0.5; background:#f9f9f9;' : ''}">
                         <td>${i + 1}</td>
                         <td class="col-main" onclick="togglePause('${t}', ${i})">${isCurrent ? '<span class="list-active-highlight">' + (t === 'C' ? item.base : item.en) + '</span>' : (t === 'C' ? item.base : item.en)}</td>
                         <td class="col-mode">
