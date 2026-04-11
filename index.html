@@ -59,7 +59,9 @@
         td { padding: 12px 4px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; vertical-align: middle; }
         .col-idx { width: 40px; }
         .col-main { width: 230px; text-align: left !important; padding-left: 20px !important; font-weight: 700; word-break: break-word; }
-        .col-trans { width: 400px; text-align: left !important; }
+        .col-mode { width: 100px; }
+        .col-trans { width: 350px; text-align: left !important; }
+        .list-mode-select { width: 100%; padding: 5px; border-radius: 4px; font-size: 12px; border: 1px solid #ccc; cursor: pointer; }
         .list-active-highlight { background-color: #e3f2fd; padding: 4px 8px; border-radius: 6px; display: inline-block; }
         .list-btn { padding: 8px 12px; border-radius: 6px; font-weight: bold; color: white; min-width: 40px; }
         .btn-edit-list { background: var(--grey); }
@@ -75,7 +77,6 @@
         .btn-import { background: #636e72; }
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 2000; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold; pointer-events: none; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        select { padding: 6px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
         @keyframes fadein { from {bottom: 0; opacity:0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
         @media (max-width: 768px) { .word-display { justify-content: center; text-align: center; } .input-group { width: 100%; flex-direction: column; } .btn-check { width: 100%; padding: 15px; } .card { padding: 15px; } .add-container { flex-direction: column; } .btn-tool { flex: 1; text-align: center; } .backup-footer { flex-direction: column; align-items: stretch; } .btn-backup { width: 100%; } }
@@ -275,7 +276,7 @@
 
     <script>
         const isIPhone = /iPhone|iPod|iPad/i.test(navigator.userAgent);
-        const APP_PREFIX = 'FLASHCARDS_PRO_V2'; // Identificativo univoco per il local storage
+        const APP_PREFIX = 'FLASHCARDS_PRO_V2'; 
 
         let dbs = {
             A: { key: APP_PREFIX + '_DATABASE_A', data: [], deck: [], current: null },
@@ -402,7 +403,7 @@
         }
 
         function nextCard(t, keepCurrent = false) {
-            const display = document.getElementById('display' + t), fb = document.getElementById('fb' + t), ans = document.getElementById('ans' + t), info = document.getElementById('info' + t), mode = document.getElementById('gameMode' + t).value;
+            const display = document.getElementById('display' + t), fb = document.getElementById('fb' + t), ans = document.getElementById('ans' + t), info = document.getElementById('info' + t);
             fb.innerText = ""; ans.value = ""; ans.focus();
             if (dbs[t].deck.length === 0) {
                 display.innerText = "Sessione finita!";
@@ -415,6 +416,8 @@
             document.getElementById('restart' + t).style.display = 'none';
             if (!keepCurrent) dbs[t].current = dbs[t].deck[0];
             const item = dbs[t].current;
+            const mode = document.getElementById('gameMode' + t).value;
+            
             if (mode === 'alt') {
                 item.lastAltState = (item.lastAltState === 'en') ? 'it' : 'en';
                 display.innerText = (item.lastAltState === 'en') ? item.en : item.it;
@@ -448,7 +451,7 @@
         function nextVerb(keepCurrent = false) {
             const display = document.getElementById('displayC'), fb = document.getElementById('fbC'), ans = document.getElementById('ansC'), info = document.getElementById('infoC'), mode = document.getElementById('gameModeC').value;
             fb.innerText = ""; ans.value = ""; ans.focus();
-            if (dbs[C].deck.length === 0) {
+            if (dbs.C.deck.length === 0) {
                 display.innerText = "Ottimo lavoro!"; info.innerText = "0 / 0";
                 document.getElementById('gameC').style.display = 'none'; document.getElementById('restartC').style.display = 'block';
                 return;
@@ -524,17 +527,31 @@
             (t === 'C') ? nextVerb() : nextCard(t);
         }
 
+        function updateItemMode(t, i, val) {
+            dbs[t].data[i].mode = val;
+            save(t);
+            showToast("Modalità aggiornata");
+        }
+
         function renderTable(t) {
             const table = document.getElementById('table' + t), search = document.getElementById('search' + t)?.value.toLowerCase() || "";
-            let html = `<tr><th class="col-idx">#</th><th class="col-main">${t === 'C' ? 'Base' : 'Inglese'}</th><th class="col-trans">Traduzione</th><th>Azioni</th></tr>`;
+            let html = `<tr><th class="col-idx">#</th><th class="col-main">${t === 'C' ? 'Base' : 'Inglese'}</th><th class="col-mode">Modo</th><th class="col-trans">Traduzione</th><th>Azioni</th></tr>`;
             dbs[t].data.forEach((item, i) => {
                 const textMain = (t === 'C' ? item.base : item.en).toLowerCase();
                 const textSub = (t === 'C' ? item.full + " " + item.it : item.it).toLowerCase();
                 if (textMain.includes(search) || textSub.includes(search)) {
                     const isCurrent = (item === dbs[t].current);
+                    const itemMode = item.mode || 'alt';
                     html += `<tr style="${item.paused ? 'opacity:0.5; background:#f9f9f9;' : ''}">
                         <td>${i + 1}</td>
                         <td class="col-main">${isCurrent ? '<span class="list-active-highlight">' + (t === 'C' ? item.base : item.en) + '</span>' : (t === 'C' ? item.base : item.en)}</td>
+                        <td class="col-mode">
+                            <select class="list-mode-select" onchange="updateItemMode('${t}', ${i}, this.value)">
+                                <option value="en" ${itemMode==='en'?'selected':''}>Eng</option>
+                                <option value="it" ${itemMode==='it'?'selected':''}>Ita</option>
+                                <option value="alt" ${itemMode==='alt'?'selected':''}>Alt</option>
+                            </select>
+                        </td>
                         <td class="col-trans"><div class="hidden-text" onclick="speakItem('${t === 'C' ? item.full : item.en}')">${t === 'C' ? item.full + ' | ' + item.it : item.it}</div></td>
                         <td>
                             <button class="list-btn btn-edit-list" onclick="manualEdit('${t}', ${i})">M</button>
@@ -592,7 +609,6 @@
         function forceAltRotation(t) { (t === 'C') ? nextVerb() : nextCard(t); }
         function syncFromGame(t) { (t === 'C') ? nextVerb(true) : nextCard(t, true); }
 
-        // Avvio
         window.onload = () => { load('A'); load('D'); load('B'); load('C'); };
     </script>
 </body>
