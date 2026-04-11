@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flashcards Pro - V51.9.4</title>
+    <title>Flashcards Pro - V51.9.5</title>
     <style>
         :root { --blue: #007bff; --purple: #6f42c1; --dark-blue: #2c3e50; --bg: #f4f7f9; --text-dark: #2d3436; --deep-blue: #0984e3; --light-gray: #f1f2f6; --red: #e74c3c; --green: #27ae60; --orange: #f39c12; --teal: #00cec9; --grey: #636e72; --cyan: #00a8ff; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; color: var(--text-dark); overflow-x: hidden; width: 100vw; }
@@ -130,7 +130,7 @@
                     <option value="alt">Modalità Alt</option>
                 </select>
             </div>
-            <div class="word-display"><span id="displayA">...</span><button onclick="speakItem(dbs.A.current.en)" style="background:none; font-size:30px;">🔊</button></div>
+            <div class="word-display"><span id="displayA">...</span><button onclick="speakItem(dbs.A.current.en)" style="background:none; font-size:30px; cursor:pointer;">🔊</button></div>
             <div id="gameA">
                 <div class="input-group">
                     <input type="text" id="ansA" class="game-input" placeholder="Traduci..." autocomplete="off">
@@ -170,7 +170,7 @@
                     <option value="alt">Modalità Alt</option>
                 </select>
             </div>
-            <div class="word-display"><span id="displayD">...</span><button onclick="speakItem(dbs.D.current.en)" style="background:none; font-size:30px;">🔊</button></div>
+            <div class="word-display"><span id="displayD">...</span><button onclick="speakItem(dbs.D.current.en)" style="background:none; font-size:30px; cursor:pointer;">🔊</button></div>
             <div id="gameD">
                 <div class="input-group">
                     <input type="text" id="ansD" class="game-input" placeholder="Traduci..." autocomplete="off">
@@ -210,7 +210,7 @@
                     <option value="alt">Modalità Alt</option>
                 </select>
             </div>
-            <div class="word-display"><span id="displayB">...</span><button onclick="speakItem(dbs.B.current.en)" style="background:none; font-size:30px;">🔊</button></div>
+            <div class="word-display"><span id="displayB">...</span><button onclick="speakItem(dbs.B.current.en)" style="background:none; font-size:30px; cursor:pointer;">🔊</button></div>
             <div id="gameB">
                 <div class="input-group">
                     <input type="text" id="ansB" class="game-input" placeholder="Traduci..." autocomplete="off">
@@ -250,7 +250,7 @@
                     <option value="alt">Modalità Alt</option>
                 </select>
             </div>
-            <div class="word-display"><span id="displayC">...</span><button id="speakBtnC" onclick="speakItem(dbs.C.current.full)" style="background:none; font-size:30px;">🔊</button></div>
+            <div class="word-display"><span id="displayC">...</span><button onclick="speakItem(dbs.C.current.full)" style="background:none; font-size:30px; cursor:pointer;">🔊</button></div>
             <div id="gameC">
                 <div class="input-group">
                     <input type="text" id="ansC" class="game-input" placeholder="Paradigma o Traduzione..." autocomplete="off">
@@ -265,7 +265,12 @@
             </div>
             <button id="restartC" class="btn-restart" onclick="restartSession('C')">RICOMINCIA SESSIONE 🔄</button>
         </div>
-        <div class="add-container"><input type="text" id="newBaseC" class="add-input" placeholder="Base" onkeydown="if(event.key==='Enter') addNewItem('C')"><input type="text" id="newFullC" class="add-input" placeholder="Paradigma" onkeydown="if(event.key==='Enter') addNewItem('C')"><input type="text" id="newItC" class="add-input" placeholder="Traduzione" onkeydown="if(event.key==='Enter') addNewItem('C')"><button class="btn-add" style="background:var(--dark-blue)" onclick="addNewItem('C')">AGGIUNGI +</button></div>
+        <div class="add-container">
+            <input type="text" id="newBaseC" class="add-input" placeholder="Base" onkeydown="if(event.key==='Enter') addNewItem('C')">
+            <input type="text" id="newFullC" class="add-input" placeholder="Paradigma" onkeydown="if(event.key==='Enter') addNewItem('C')">
+            <input type="text" id="newItC" class="add-input" placeholder="Traduzione" onkeydown="if(event.key==='Enter') addNewItem('C')">
+            <button class="btn-add" style="background:var(--dark-blue)" onclick="addNewItem('C')">AGGIUNGI +</button>
+        </div>
         <div class="search-container">
             <input type="text" id="searchC" class="search-input" placeholder="Cerca..." oninput="renderTable('C')">
             <button class="btn-tool" style="background:var(--grey)" onclick="refreshList('C')">🔄 AGGIORNA</button>
@@ -375,8 +380,6 @@
         } else { addNewItem(t); }
     }
 
-    function formatText(text) { if(!text) return ""; return text.split(',').map(item => item.trim()).join(', ').toUpperCase(); }
-
     function speakItem(text) {
         if (!text) return;
         window.speechSynthesis.cancel();
@@ -427,10 +430,9 @@
     function syncFromGame(t) { if (!dbs[t].current) return; dbs[t].current.mode = document.getElementById('gameMode' + t).value; save(t); if(t === 'C') nextVerb(true); else nextCard(t, true); }
 
     function forceAltRotation(t) {
-        const currentScroll = window.scrollY;
         dbs[t].data.forEach(w => { if(w.mode === 'alt') w.lastAltState = (w.lastAltState === 'it') ? 'en' : 'it'; });
         save(t); if(t === 'C') nextVerb(true); else nextCard(t, true); renderTable(t);
-        window.scrollTo(0, currentScroll); showToast("Rotazione Alt completata!");
+        showToast("Rotazione Alt completata!");
     }
 
     function nextCard(t, keepCurrent = false) {
@@ -449,7 +451,7 @@
         document.getElementById('gameMode' + t).value = mode;
         let showEn = (mode === 'en') || (mode === 'alt' && dbs[t].current.lastAltState !== 'it');
         if(mode === 'it') showEn = false;
-        document.getElementById('display' + t).innerText = showEn ? dbs[t].current.en : dbs[t].current.it;
+        document.getElementById('display' + t).innerText = showEn ? dbs[t].current.en.toUpperCase() : dbs[t].current.it.toUpperCase();
         dbs[t].current._target = showEn ? dbs[t].current.it : dbs[t].current.en;
         if(!keepCurrent) { document.getElementById('ans' + t).value = ""; document.getElementById('fb' + t).innerText = ""; btn.innerText = "CONTROLLA"; }
         document.getElementById('info' + t).innerText = `RESTANTI: ${dbs[t].deck.length + (dbs[t].current ? 1 : 0)}`;
@@ -507,9 +509,9 @@
         renderTable(t); showToast(isPaused ? "Riattivato" : "Posticipato");
     }
 
-    function postponeAll(t) { if(!confirm("Posticipare TUTTI gli elementi di questa lista?")) return; dbs[t].data.forEach(w => w.nextReview = Date.now() + 365*24*60*60*1000); save(t); buildDeck(t); dbs[t].current = null; t==='C'?nextVerb():nextCard(t); renderTable(t); showToast("Tutti posticipati!"); }
-    function reactivateAll(t) { dbs[t].data.forEach(w => w.nextReview = 0); save(t); buildDeck(t); renderTable(t); showToast("Tutti riattivati!"); }
-    function refreshList(t) { buildDeck(t); renderTable(t); showToast("Lista aggiornata!"); }
+    function postponeAll(t) { if(!confirm("Posticipare TUTTI?")) return; dbs[t].data.forEach(w => w.nextReview = Date.now() + 365*24*60*60*1000); save(t); buildDeck(t); dbs[t].current = null; t==='C'?nextVerb():nextCard(t); renderTable(t); }
+    function reactivateAll(t) { dbs[t].data.forEach(w => w.nextReview = 0); save(t); buildDeck(t); renderTable(t); }
+    function refreshList(t) { buildDeck(t); renderTable(t); }
 
     function renderTable(t) {
         const table = document.getElementById('table' + t), query = document.getElementById('search' + t).value.toLowerCase();
