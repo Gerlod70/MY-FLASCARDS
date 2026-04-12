@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flashcards Pro - V51.9.7</title>
+    <title>Flashcards Pro - V51.9.9</title>
     <style>
         :root { --blue: #007bff; --purple: #6f42c1; --dark-blue: #2c3e50; --bg: #f4f7f9; --text-dark: #2d3436; --deep-blue: #0984e3; --light-gray: #f1f2f6; --red: #e74c3c; --green: #27ae60; --orange: #f39c12; --teal: #00cec9; --grey: #636e72; --pink: #d63031; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; color: var(--text-dark); overflow-x: hidden; width: 100vw; }
@@ -348,15 +348,15 @@
         if(enIn.value && itIn.value) { addNewItem(t); return; }
         if (sourceLang === 'en' && enIn.value && !itIn.value) {
             enIn.disabled = true;
-            itIn.placeholder = "Traduco...";
+            itIn.placeholder = \"Traduco...\";
             itIn.value = await translateText(enIn.value, 'en', 'it');
-            itIn.placeholder = "Traduzione Italiana";
+            itIn.placeholder = \"Traduzione Italiana\";
             enIn.disabled = false;
         } else if (sourceLang === 'it' && itIn.value && !enIn.value) {
             itIn.disabled = true;
-            enIn.placeholder = "Traduco...";
+            enIn.placeholder = \"Traduco...\";
             enIn.value = await translateText(itIn.value, 'it', 'en');
-            enIn.placeholder = "Parola Inglese";
+            enIn.placeholder = \"Parola Inglese\";
             itIn.disabled = false;
         }
     }
@@ -364,20 +364,20 @@
     function handleIPhoneBtn(t) {
         if (!isIPhone) return;
         const btn = document.getElementById('btnAdd' + t), enVal = document.getElementById('newEn' + t).value, itVal = document.getElementById('newIt' + t).value;
-        if ((enVal && !itVal) || (itVal && !enVal)) { btn.innerText = "TRADUCI"; btn.style.background = "#3498db"; }
-        else { btn.innerText = "AGGIUNGI +"; if(t === 'A') btn.style.background = "#27ae60"; else if(t === 'D') btn.style.background = "var(--pink)"; else if(t === 'B') btn.style.background = "#6f42c1"; }
+        if ((enVal && !itVal) || (itVal && !enVal)) { btn.innerText = \"TRADUCI\"; btn.style.background = \"#3498db\"; }
+        else { btn.innerText = \"AGGIUNGI +\"; if(t === 'A') btn.style.background = \"#27ae60\"; else if(t === 'D') btn.style.background = \"var(--pink)\"; else if(t === 'B') btn.style.background = \"#6f42c1\"; }
     }
 
     async function smartAdd(t) {
         const btn = document.getElementById('btnAdd' + t), enIn = document.getElementById('newEn' + t), itIn = document.getElementById('newIt' + t);
-        if (isIPhone && btn.innerText === "TRADUCI") {
+        if (isIPhone && btn.innerText === \"TRADUCI\") {
             if (enIn.value && !itIn.value) itIn.value = await translateText(enIn.value, 'en', 'it');
             else if (itIn.value && !enIn.value) enIn.value = await translateText(itIn.value, 'it', 'en');
             handleIPhoneBtn(t);
         } else { addNewItem(t); }
     }
 
-    function formatText(text) { if(!text) return ""; return text.split(',').map(item => item.trim()).join(', ').toUpperCase(); }
+    function formatText(text) { if(!text) return \"\"; return text.split(',').map(item => item.trim()).join(', ').toUpperCase(); }
 
     function speakItem(text) {
         if (!text) return;
@@ -389,9 +389,9 @@
     }
 
     function showToast(msg) {
-        const t = document.getElementById("toast");
-        t.innerText = msg; t.className = "show";
-        setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+        const t = document.getElementById(\"toast\");
+        t.innerText = msg; t.className = \"show\";
+        setTimeout(() => { t.className = t.className.replace(\"show\", \"\"); }, 3000);
     }
 
     function init() {
@@ -410,7 +410,7 @@
 
     function restartSession(t) {
         dbs[t].data.forEach(w => { if(w.mode === 'alt') { w.lastAltState = (w.lastAltState === 'it') ? 'en' : 'it'; } });
-        save(t); buildDeck(t); dbs[t].current = null; if(t === 'C') nextVerb(); else nextCard(t); renderTable(t); showToast("Sessione riavviata e lingue ruotate!");
+        save(t); buildDeck(t); dbs[t].current = null; if(t === 'C') nextVerb(); else nextCard(t); renderTable(t); showToast(\"Sessione riavviata e lingue ruotate!\");
     }
 
     function save(t) { localStorage.setItem(dbs[t].key, JSON.stringify(dbs[t].data)); }
@@ -429,18 +429,18 @@
         const currentScroll = window.scrollY;
         dbs[t].data.forEach(w => { if(w.mode === 'alt') w.lastAltState = (w.lastAltState === 'it') ? 'en' : 'it'; });
         save(t); if(t === 'C') nextVerb(true); else nextCard(t, true); renderTable(t);
-        window.scrollTo(0, currentScroll); showToast("Rotazione Alt completata!");
+        window.scrollTo(0, currentScroll); showToast(\"Rotazione Alt completata!\");
     }
 
     function nextCard(t, keepCurrent = false) {
         if (dbs[t].deck.length === 0 && !keepCurrent && !dbs[t].current) {
-            document.getElementById('display' + t).innerText = "FINITA! ✅";
-            document.getElementById('game' + t).style.display = "none";
-            document.getElementById('restart' + t).style.display = "inline-block"; return;
+            document.getElementById('display' + t).innerText = \"FINITA! ✅\";
+            document.getElementById('game' + t).style.display = \"none\";
+            document.getElementById('restart' + t).style.display = \"inline-block\"; return;
         }
-        document.getElementById('game' + t).style.display = "block";
-        document.getElementById('restart' + t).style.display = "none";
-        document.getElementById('check' + t).innerText = "CONTROLLA";
+        document.getElementById('game' + t).style.display = \"block\";
+        document.getElementById('restart' + t).style.display = \"none\";
+        document.getElementById('check' + t).innerText = \"CONTROLLA\";
         if(!keepCurrent) { dbs[t].current = dbs[t].deck.pop(); }
         if(!dbs[t].current) return;
         const mode = dbs[t].current.mode || 'en';
@@ -448,15 +448,15 @@
         let showEn = (mode === 'en') || (mode === 'alt' && dbs[t].current.lastAltState !== 'it');
         if(mode === 'it') showEn = false;
         document.getElementById('display' + t).innerText = showEn ? dbs[t].current.en : dbs[t].current.it;
-        document.getElementById('ans' + t).value = "";
-        document.getElementById('fb' + t).innerText = "";
+        document.getElementById('ans' + t).value = \"\";
+        document.getElementById('fb' + t).innerText = \"\";
         updateInfo(t);
         document.getElementById('ans' + t).focus();
     }
 
     function checkGeneric(t) {
         const btn = document.getElementById('check' + t);
-        if (btn.innerText === "PROSSIMO") { nextCard(t); return; }
+        if (btn.innerText === \"PROSSIMO\") { nextCard(t); return; }
         
         const user = document.getElementById('ans' + t).value.trim().toLowerCase(), 
               mode = dbs[t].current.mode || 'en',
@@ -464,43 +464,44 @@
         let showEn = (mode === 'en') || (mode === 'alt' && dbs[t].current.lastAltState !== 'it');
         if(mode === 'it') showEn = false;
         const targets = (showEn ? dbs[t].current.it : dbs[t].current.en).toLowerCase().split(',').map(s => s.trim());
+        const correctStr = (showEn ? dbs[t].current.it : dbs[t].current.en).toUpperCase();
         
-        if (targets.includes(user)) { fb.innerText = "CORRETTO! 🎉"; fb.style.color = "var(--green)"; speakItem(dbs[t].current.en); setTimeout(() => nextCard(t), 800); }
-        else { fb.innerText = "SBAGLIATO! ❌\n" + (showEn ? dbs[t].current.it : dbs[t].current.en).toUpperCase(); fb.style.color = "var(--red)"; btn.innerText = "PROSSIMO"; }
+        if (targets.includes(user)) { fb.innerText = \"CORRETTO! 🎉\"; fb.style.color = \"var(--green)\"; speakItem(dbs[t].current.en); setTimeout(() => nextCard(t), 800); }
+        else { fb.innerText = correctStr; fb.style.color = \"var(--dark-blue)\"; btn.innerText = \"PROSSIMO\"; }
     }
 
     function nextVerb(keepCurrent = false) {
         if (dbs.C.deck.length === 0 && !keepCurrent && !dbs.C.current) {
-            document.getElementById('displayC').innerText = "FINITA! ✅";
-            document.getElementById('gameC').style.display = "none";
-            document.getElementById('restartC').style.display = "inline-block"; return;
+            document.getElementById('displayC').innerText = \"FINITA! ✅\";
+            document.getElementById('gameC').style.display = \"none\";
+            document.getElementById('restartC').style.display = \"inline-block\"; return;
         }
-        document.getElementById('gameC').style.display = "block";
-        document.getElementById('restartC').style.display = "none";
-        document.getElementById('checkC').innerText = "CONTROLLA";
+        document.getElementById('gameC').style.display = \"block\";
+        document.getElementById('restartC').style.display = \"none\";
+        document.getElementById('checkC').innerText = \"CONTROLLA\";
         if(!keepCurrent) { dbs.C.current = dbs.C.deck.pop(); }
         if(!dbs.C.current) return;
         const mode = dbs.C.current.mode || 'alt';
         document.getElementById('gameModeC').value = mode;
         let showIt = (mode === 'it') || (mode === 'alt' && dbs.C.current.lastAltState === 'it');
         document.getElementById('displayC').innerText = showIt ? dbs.C.current.it : dbs.C.current.base;
-        document.getElementById('ansC').value = "";
-        document.getElementById('fbC').innerText = "";
+        document.getElementById('ansC').value = \"\";
+        document.getElementById('fbC').innerText = \"\";
         updateInfo('C');
         document.getElementById('ansC').focus();
     }
 
     function checkVerb() {
         const btn = document.getElementById('checkC');
-        if (btn.innerText === "PROSSIMO") { nextVerb(); return; }
+        if (btn.innerText === \"PROSSIMO\") { nextVerb(); return; }
 
         const user = document.getElementById('ansC').value.trim().toLowerCase(), 
               mode = dbs.C.current.mode || 'alt',
               fb = document.getElementById('fbC');
         let showIt = (mode === 'it') || (mode === 'alt' && dbs.C.current.lastAltState === 'it');
         const target = showIt ? dbs.C.current.base : dbs.C.current.full;
-        if (user === target.toLowerCase()) { fb.innerText = "CORRETTO! 🎉"; fb.style.color = "var(--green)"; speakItem(dbs.C.current.full); setTimeout(() => nextVerb(), 800); }
-        else { fb.innerText = "SBAGLIATO! ❌\n" + target.toUpperCase(); fb.style.color = "var(--red)"; btn.innerText = "PROSSIMO"; }
+        if (user === target.toLowerCase()) { fb.innerText = \"CORRETTO! 🎉\"; fb.style.color = \"var(--green)\"; speakItem(dbs.C.current.full); setTimeout(() => nextVerb(), 800); }
+        else { fb.innerText = target.toUpperCase(); fb.style.color = \"var(--dark-blue)\"; btn.innerText = \"PROSSIMO\"; }
     }
 
     function updateInfo(t) { const el = document.getElementById('info' + t); if(el) el.innerText = `MANCANTI: ${dbs[t].deck.length + (dbs[t].current?1:0)} / ${dbs[t].data.length}`; }
@@ -512,28 +513,28 @@
         item.nextReview = isPaused ? 0 : Date.now() + (365 * 24 * 60 * 60 * 1000);
         save(t); buildDeck(t);
         if (i === undefined) t === 'C' ? nextVerb() : nextCard(t);
-        renderTable(t); showToast(isPaused ? "Riattivato!" : "Posticipato!");
+        renderTable(t); showToast(isPaused ? \"Riattivato!\" : \"Posticipato!\");
     }
 
     function manualDelete(t, i) {
-        if (!confirm("Eliminare definitivamente?")) return;
+        if (!confirm(\"Eliminare definitivamente?\")) return;
         if (i === undefined) { const idx = dbs[t].data.indexOf(dbs[t].current); if(idx > -1) dbs[t].data.splice(idx, 1); dbs[t].current = null; }
         else { dbs[t].data.splice(i, 1); }
-        save(t); buildDeck(t); if (i === undefined) t === 'C' ? nextVerb() : nextCard(t); renderTable(t); showToast("Eliminato!");
+        save(t); buildDeck(t); if (i === undefined) t === 'C' ? nextVerb() : nextCard(t); renderTable(t); showToast(\"Eliminato!\");
     }
 
     function postponeAll(t) {
         const future = Date.now() + (365 * 24 * 60 * 60 * 1000);
         dbs[t].data.forEach(w => w.nextReview = future);
-        save(t); buildDeck(t); dbs[t].current = null; t === 'C' ? nextVerb() : nextCard(t); renderTable(t); showToast("Tutto posticipato!");
+        save(t); buildDeck(t); dbs[t].current = null; t === 'C' ? nextVerb() : nextCard(t); renderTable(t); showToast(\"Tutto posticipato!\");
     }
 
     function reactivateAll(t) {
         dbs[t].data.forEach(w => w.nextReview = 0);
-        save(t); buildDeck(t); t === 'C' ? nextVerb() : nextCard(t); renderTable(t); showToast("Tutto riattivato!");
+        save(t); buildDeck(t); t === 'C' ? nextVerb() : nextCard(t); renderTable(t); showToast(\"Tutto riattivato!\");
     }
 
-    function refreshList(t) { buildDeck(t); t === 'C' ? nextVerb(true) : nextCard(t, true); renderTable(t); showToast("Lista aggiornata!"); }
+    function refreshList(t) { buildDeck(t); t === 'C' ? nextVerb(true) : nextCard(t, true); renderTable(t); showToast(\"Lista aggiornata!\"); }
 
     function addNewItem(t) {
         if (t === 'C') {
@@ -541,15 +542,15 @@
             if (!base || !full || !it) return;
             const newItem = { base, full, it, nextReview: 0, mode: 'alt', lastAltState: 'en' };
             dbs.C.data.push(newItem); save('C'); dbs.C.deck.push(newItem); renderTable('C');
-            document.getElementById('newBaseC').value = ""; document.getElementById('newFullC').value = ""; document.getElementById('newItC').value = "";
+            document.getElementById('newBaseC').value = \"\"; document.getElementById('newFullC').value = \"\"; document.getElementById('newItC').value = \"\";
         } else {
             const en = document.getElementById('newEn' + t).value.trim(), it = document.getElementById('newIt' + t).value.trim();
             if (!en || !it) return;
             const newItem = { en, it, nextReview: 0, mode: 'alt', lastAltState: 'en' };
             dbs[t].data.push(newItem); save(t); dbs[t].deck.push(newItem); renderTable(t);
-            document.getElementById('newEn' + t).value = ""; document.getElementById('newIt' + t).value = ""; if (isIPhone) handleIPhoneBtn(t);
+            document.getElementById('newEn' + t).value = \"\"; document.getElementById('newIt' + t).value = \"\"; if (isIPhone) handleIPhoneBtn(t);
         }
-        showToast("Aggiunto!");
+        showToast(\"Aggiunto!\");
     }
 
     function exportData() {
@@ -568,8 +569,8 @@
                 if(imported.D) { dbs.D.data = imported.D; save('D'); }
                 if(imported.B) { dbs.B.data = imported.B; save('B'); }
                 if(imported.C) { dbs.C.data = imported.C; save('C'); }
-                init(); showToast("Dati importati e sovrascritti!");
-            } catch (err) { alert("File non valido"); }
+                init(); showToast(\"Dati importati e sovrascritti!\");
+            } catch (err) { alert(\"File non valido\"); }
         };
         reader.readAsText(file);
     }
@@ -596,30 +597,30 @@
                         save(t);
                     }
                 });
-                init(); showToast("Nuove parole aggiunte con successo!");
-            } catch (err) { alert("File non valido"); }
+                init(); showToast(\"Nuove parole aggiunte con successo!\");
+            } catch (err) { alert(\"File non valido\"); }
         };
         reader.readAsText(file);
     }
 
     function renderTable(t) {
         const search = document.getElementById('search' + t).value.toLowerCase(), table = document.getElementById('table' + t);
-        let html = `<tr><th class="col-idx">#</th><th class="col-main">${t==='C'?'BASE':'INGLESE'}</th><th class="col-trans">${t==='C'?'PARADIGMA / TRADUZIONE':'TRADUZIONE'}</th><th>AZIONI</th></tr>`;
+        let html = `<tr><th class=\"col-idx\">#</th><th class=\"col-main\">${t==='C'?'BASE':'INGLESE'}</th><th class=\"col-trans\">${t==='C'?'PARADIGMA / TRADUZIONE':'TRADUZIONE'}</th><th>AZIONI</th></tr>`;
         dbs[t].data.forEach((item, i) => {
             const main = (t === 'C' ? item.base : item.en).toLowerCase();
-            const trans = (t === 'C' ? item.full + " " + item.it : item.it).toLowerCase();
+            const trans = (t === 'C' ? item.full + \" \" + item.it : item.it).toLowerCase();
             if (main.includes(search) || trans.includes(search)) {
                 const isPaused = item.nextReview && item.nextReview > Date.now();
                 const isActive = dbs[t].current && (t === 'C' ? dbs[t].current.base === item.base : dbs[t].current.en === item.en);
-                html += `<tr style="${isPaused?'opacity:0.5':''}">
+                html += `<tr style=\"${isPaused?'opacity:0.5':''}\">
                     <td>${i+1}</td>
-                    <td class="col-main"><span class="${isActive?'list-active-highlight':''}">${t==='C'?item.base.toUpperCase():item.en.toUpperCase()}</span></td>
-                    <td class="col-trans"><span class="hidden-text" onclick="this.style.filter='none'">${t==='C'?(item.full + ' | ' + item.it).toUpperCase():item.it.toUpperCase()}</span></td>
+                    <td class=\"col-main\"><span class=\"${isActive?'list-active-highlight':''}\">${t==='C'?item.base.toUpperCase():item.en.toUpperCase()}</span></td>
+                    <td class=\"col-trans\"><span class=\"hidden-text\" onclick=\"this.style.filter='none'\">${t==='C'?(item.full + ' | ' + item.it).toUpperCase():item.it.toUpperCase()}</span></td>
                     <td>
-                        <div style="display:flex; gap:5px; justify-content:center;">
-                            <button class="list-btn btn-edit-list" onclick="manualEdit('${t}', ${i})">✏️</button>
-                            <button class="list-btn ${isPaused?'btn-reactivate-list':'btn-postpone-list'}" onclick="togglePause('${t}', ${i})">${isPaused?'⚡':'⏳'}</button>
-                            <button class="list-btn btn-trash-list" onclick="manualDelete('${t}', ${i})">🗑️</button>
+                        <div style=\"display:flex; gap:5px; justify-content:center;\">
+                            <button class=\"list-btn btn-edit-list\" onclick=\"manualEdit('${t}', ${i})\">✏️</button>
+                            <button class=\"list-btn ${isPaused?'btn-reactivate-list':'btn-postpone-list'}\" onclick=\"togglePause('${t}', ${i})\">${isPaused?'⚡':'⏳'}</button>
+                            <button class=\"list-btn btn-trash-list\" onclick=\"manualDelete('${t}', ${i})\">🗑️</button>
                         </div>
                     </td>
                 </tr>`;
