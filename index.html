@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flashcards Pro - V51.9.6</title>
+    <title>Flashcards Pro - V51.9.7</title>
     <style>
         :root { --blue: #007bff; --purple: #6f42c1; --dark-blue: #2c3e50; --bg: #f4f7f9; --text-dark: #2d3436; --deep-blue: #0984e3; --light-gray: #f1f2f6; --red: #e74c3c; --green: #27ae60; --orange: #f39c12; --teal: #00cec9; --grey: #636e72; --pink: #d63031; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; color: var(--text-dark); overflow-x: hidden; width: 100vw; }
@@ -134,7 +134,7 @@
             <div class="word-display"><span id="displayA">...</span><button onclick="speakItem(dbs.A.current.en)" style="background:none; font-size:30px;">🔊</button></div>
             <div id="gameA">
                 <div class="input-group">
-                    <input type="text" id="ansA" class="game-input" placeholder="Traduci..." autocomplete="off">
+                    <input type="text" id="ansA" class="game-input" placeholder="Traduci..." autocomplete="off" onkeydown="if(event.key==='Enter') checkGeneric('A')">
                     <button id="checkA" class="btn-check" onclick="checkGeneric('A')">CONTROLLA</button>
                 </div>
                 <div id="fbA" class="feedback-area"></div>
@@ -174,7 +174,7 @@
             <div class="word-display"><span id="displayD">...</span><button onclick="speakItem(dbs.D.current.en)" style="background:none; font-size:30px;">🔊</button></div>
             <div id="gameD">
                 <div class="input-group">
-                    <input type="text" id="ansD" class="game-input" placeholder="Traduci..." autocomplete="off">
+                    <input type="text" id="ansD" class="game-input" placeholder="Traduci..." autocomplete="off" onkeydown="if(event.key==='Enter') checkGeneric('D')">
                     <button id="checkD" class="btn-check" onclick="checkGeneric('D')" style="background:var(--pink)">CONTROLLA</button>
                 </div>
                 <div id="fbD" class="feedback-area"></div>
@@ -214,7 +214,7 @@
             <div class="word-display"><span id="displayB">...</span><button onclick="speakItem(dbs.B.current.en)" style="background:none; font-size:30px;">🔊</button></div>
             <div id="gameB">
                 <div class="input-group">
-                    <input type="text" id="ansB" class="game-input" placeholder="Traduci..." autocomplete="off">
+                    <input type="text" id="ansB" class="game-input" placeholder="Traduci..." autocomplete="off" onkeydown="if(event.key==='Enter') checkGeneric('B')">
                     <button id="checkB" class="btn-check" onclick="checkGeneric('B')" style="background:var(--purple)">CONTROLLA</button>
                 </div>
                 <div id="fbB" class="feedback-area"></div>
@@ -254,7 +254,7 @@
             <div class="word-display"><span id="displayC">...</span><button id="speakBtnC" onclick="speakItem(dbs.C.current.full)" style="background:none; font-size:30px;">🔊</button></div>
             <div id="gameC">
                 <div class="input-group">
-                    <input type="text" id="ansC" class="game-input" placeholder="Paradigma o Traduzione..." autocomplete="off">
+                    <input type="text" id="ansC" class="game-input" placeholder="Paradigma o Traduzione..." autocomplete="off" onkeydown="if(event.key==='Enter') checkVerb()">
                     <button id="checkC" class="btn-check" onclick="checkVerb()" style="background:var(--dark-blue)">CONTROLLA</button>
                 </div>
                 <div id="fbC" class="feedback-area"></div>
@@ -347,13 +347,17 @@
         const enIn = document.getElementById('newEn' + t), itIn = document.getElementById('newIt' + t);
         if(enIn.value && itIn.value) { addNewItem(t); return; }
         if (sourceLang === 'en' && enIn.value && !itIn.value) {
+            enIn.disabled = true;
             itIn.placeholder = "Traduco...";
             itIn.value = await translateText(enIn.value, 'en', 'it');
             itIn.placeholder = "Traduzione Italiana";
+            enIn.disabled = false;
         } else if (sourceLang === 'it' && itIn.value && !enIn.value) {
+            itIn.disabled = true;
             enIn.placeholder = "Traduco...";
             enIn.value = await translateText(itIn.value, 'it', 'en');
             enIn.placeholder = "Parola Inglese";
+            itIn.disabled = false;
         }
     }
 
@@ -394,7 +398,7 @@
         ['A', 'D', 'B', 'C'].forEach(t => {
             let saved = localStorage.getItem(dbs[t].key);
             dbs[t].data = saved ? JSON.parse(saved) : [];
-            dbs[t].data.forEach(w => { if(w.mode === 'alt') { w.lastAltState = (w.lastAltState === 'it') ? 'en' : 'it'; } });
+            dbs[t].data.forEach(w => { if(w.mode === 'alt' && !w.lastAltState) { w.lastAltState = 'en'; } });
             save(t); buildDeck(t); t === 'C' ? nextVerb() : nextCard(t); renderTable(t);
         });
     }
@@ -436,6 +440,7 @@
         }
         document.getElementById('game' + t).style.display = "block";
         document.getElementById('restart' + t).style.display = "none";
+        document.getElementById('check' + t).innerText = "CONTROLLA";
         if(!keepCurrent) { dbs[t].current = dbs[t].deck.pop(); }
         if(!dbs[t].current) return;
         const mode = dbs[t].current.mode || 'en';
@@ -446,17 +451,22 @@
         document.getElementById('ans' + t).value = "";
         document.getElementById('fb' + t).innerText = "";
         updateInfo(t);
+        document.getElementById('ans' + t).focus();
     }
 
     function checkGeneric(t) {
+        const btn = document.getElementById('check' + t);
+        if (btn.innerText === "PROSSIMO") { nextCard(t); return; }
+        
         const user = document.getElementById('ans' + t).value.trim().toLowerCase(), 
               mode = dbs[t].current.mode || 'en',
               fb = document.getElementById('fb' + t);
         let showEn = (mode === 'en') || (mode === 'alt' && dbs[t].current.lastAltState !== 'it');
         if(mode === 'it') showEn = false;
         const targets = (showEn ? dbs[t].current.it : dbs[t].current.en).toLowerCase().split(',').map(s => s.trim());
+        
         if (targets.includes(user)) { fb.innerText = "CORRETTO! 🎉"; fb.style.color = "var(--green)"; speakItem(dbs[t].current.en); setTimeout(() => nextCard(t), 800); }
-        else { fb.innerText = "SBAGLIATO! ❌\n" + (showEn ? dbs[t].current.it : dbs[t].current.en).toUpperCase(); fb.style.color = "var(--red)"; }
+        else { fb.innerText = "SBAGLIATO! ❌\n" + (showEn ? dbs[t].current.it : dbs[t].current.en).toUpperCase(); fb.style.color = "var(--red)"; btn.innerText = "PROSSIMO"; }
     }
 
     function nextVerb(keepCurrent = false) {
@@ -467,6 +477,7 @@
         }
         document.getElementById('gameC').style.display = "block";
         document.getElementById('restartC').style.display = "none";
+        document.getElementById('checkC').innerText = "CONTROLLA";
         if(!keepCurrent) { dbs.C.current = dbs.C.deck.pop(); }
         if(!dbs.C.current) return;
         const mode = dbs.C.current.mode || 'alt';
@@ -476,16 +487,20 @@
         document.getElementById('ansC').value = "";
         document.getElementById('fbC').innerText = "";
         updateInfo('C');
+        document.getElementById('ansC').focus();
     }
 
     function checkVerb() {
+        const btn = document.getElementById('checkC');
+        if (btn.innerText === "PROSSIMO") { nextVerb(); return; }
+
         const user = document.getElementById('ansC').value.trim().toLowerCase(), 
               mode = dbs.C.current.mode || 'alt',
               fb = document.getElementById('fbC');
         let showIt = (mode === 'it') || (mode === 'alt' && dbs.C.current.lastAltState === 'it');
         const target = showIt ? dbs.C.current.base : dbs.C.current.full;
         if (user === target.toLowerCase()) { fb.innerText = "CORRETTO! 🎉"; fb.style.color = "var(--green)"; speakItem(dbs.C.current.full); setTimeout(() => nextVerb(), 800); }
-        else { fb.innerText = "SBAGLIATO! ❌\n" + target.toUpperCase(); fb.style.color = "var(--red)"; }
+        else { fb.innerText = "SBAGLIATO! ❌\n" + target.toUpperCase(); fb.style.color = "var(--red)"; btn.innerText = "PROSSIMO"; }
     }
 
     function updateInfo(t) { const el = document.getElementById('info' + t); if(el) el.innerText = `MANCANTI: ${dbs[t].deck.length + (dbs[t].current?1:0)} / ${dbs[t].data.length}`; }
@@ -570,16 +585,13 @@
                 sections.forEach(t => {
                     if (imported[t] && Array.isArray(imported[t])) {
                         imported[t].forEach(newItem => {
-                            // Controllo duplicati basato su 'en' o 'base' per i verbi
                             let exists = false;
                             if (t === 'C') {
                                 exists = dbs[t].data.some(existing => existing.base.toLowerCase() === newItem.base.toLowerCase());
                             } else {
                                 exists = dbs[t].data.some(existing => existing.en.toLowerCase() === newItem.en.toLowerCase());
                             }
-                            if (!exists) {
-                                dbs[t].data.push(newItem);
-                            }
+                            if (!exists) { dbs[t].data.push(newItem); }
                         });
                         save(t);
                     }
